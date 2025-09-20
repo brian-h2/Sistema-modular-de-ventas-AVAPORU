@@ -1,14 +1,17 @@
+import { BrowserRouter } from 'react-router-dom'
 import './App.css'
+import Navbar from './components/ui/Navbar'
 import AppRoutes from './routes/AppRoutes'
 
 function App() {
 
   return (
-    <>
-    <div className='bg-green-400'>
+  <BrowserRouter>
+    <div className='bg-green-400' >
+      <Navbar/>
       <AppRoutes/>
     </div>
-    </>
+  </BrowserRouter>
   )
 }
 

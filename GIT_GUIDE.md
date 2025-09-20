@@ -127,7 +127,7 @@ git commit -m "feat: CRUD de empleados"
 
 ### 3. Subir cambios
 ```bash
-git push -u origin feature/empleados
+git push -u origin feature/empleados //Se debe hacer esto y luego el paso 4 porque si no aprobamos el PR de estos cambios van directos a la main.
 
 
 ### 4. Fusionar en `develop`
