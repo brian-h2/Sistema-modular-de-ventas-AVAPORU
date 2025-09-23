@@ -14,10 +14,10 @@ const monthlyRevenue = [
     { month: 'Jun', revenue: 315000, sales: 420 },
     { month: 'Jul', revenue: 280000, sales: 390 },
     { month: 'Ago', revenue: 330000, sales: 450 },
-    { month: 'Sep', revenue: 360000, sales: 480 },
-    { month: 'Oct', revenue: 400000, sales: 520 },
-    { month: 'Nov', revenue: 450000, sales: 580 },
-    { month: 'Dic', revenue: 500000, sales: 650 },
+    { month: 'Sep', revenue: 360000, sales: 410 },
+    { month: 'Oct', revenue: 400000, sales: 420 },
+    { month: 'Nov', revenue: 450000, sales: 680 },
+    { month: 'Dic', revenue: 500000, sales: 950 },
 ];
 
 export default function Dashboard() {    
