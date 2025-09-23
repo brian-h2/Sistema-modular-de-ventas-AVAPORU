@@ -1,17 +1,6 @@
-import { 
-  DollarSign, 
-  Package, 
-  AlertTriangle, 
-  TrendingUp, 
-  ShoppingCart,
-  Users,
-  FileText,
-  Target,
-  Calendar,
-  Clock
-} from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
+import {  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,  LineChart, Line } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
+import { TrendingUp } from 'lucide-react';
 
 
 /*Datos para elaborar el grafico temporal*/
@@ -25,10 +14,10 @@ const monthlyRevenue = [
     { month: 'Jun', revenue: 315000, sales: 420 },
     { month: 'Jul', revenue: 280000, sales: 390 },
     { month: 'Ago', revenue: 330000, sales: 450 },
-    { month: 'Sep', revenue: 360000, sales: 480 },
-    { month: 'Oct', revenue: 400000, sales: 520 },
-    { month: 'Nov', revenue: 450000, sales: 580 },
-    { month: 'Dic', revenue: 500000, sales: 650 },
+    { month: 'Sep', revenue: 360000, sales: 410 },
+    { month: 'Oct', revenue: 400000, sales: 420 },
+    { month: 'Nov', revenue: 450000, sales: 680 },
+    { month: 'Dic', revenue: 500000, sales: 950 },
 ];
 
 export default function Dashboard() {    
@@ -125,8 +114,8 @@ export default function Dashboard() {
                             <span
                                 data-slot="badge"
                                 className="inline-flex items-center justify-center rounded-md border py-0.5 font-medium w-fit whitespace-nowrap shrink-0 [&amp;&gt;svg]:size-3 gap-1 [&amp;&gt;svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden [a&amp;]:hover:bg-primary/90 text-xs bg-red-100 text-red-800 border-red-300"
-                                >Crítico</span
-                            >
+                                >Crítico
+                            </span>
                         </div>
                     </div>
                     <div className="flex items-center justify-between p-3 rounded-lg ">
@@ -139,8 +128,8 @@ export default function Dashboard() {
                             <span
                                 data-slot="badge"
                                 className="inline-flex items-center justify-center rounded-md border px-2 py-0.5 font-medium w-fit whitespace-nowrap shrink-0 [&amp;&gt;svg]:size-3 gap-1 [&amp;&gt;svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden [a&amp;]:hover:bg-primary/90 text-xs bg-yellow-100 text-yellow-800 border-yellow-300"
-                                >Bajo</span
-                            >
+                                >Bajo
+                            </span>
                         </div>
                     </div>
                     <div className="flex items-center justify-between p-3 rounded-lg">
@@ -153,8 +142,8 @@ export default function Dashboard() {
                             <span
                                 data-slot="badge"
                                 className="inline-flex items-center justify-center rounded-md border px-2 py-0.5 font-medium w-fit whitespace-nowrap shrink-0 [&amp;&gt;svg]:size-3 gap-1 [&amp;&gt;svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden [a&amp;]:hover:bg-primary/90 text-xs bg-yellow-100 text-yellow-800 border-yellow-300"
-                                >Bajo</span
-                            >
+                                >Bajo
+                            </span>
                         </div>
                     </div>
                     <div className="flex items-center justify-between p-3 rounded-lg">
@@ -167,8 +156,8 @@ export default function Dashboard() {
                             <span
                                 data-slot="badge"
                                 className="inline-flex items-center justify-center rounded-md border px-2 py-0.5 font-medium w-fit whitespace-nowrap shrink-0 [&amp;&gt;svg]:size-3 gap-1 [&amp;&gt;svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden [a&amp;]:hover:bg-primary/90 text-xs bg-yellow-100 text-yellow-800 border-yellow-300"
-                                >Bajo</span
-                            >
+                                >Bajo
+                            </span>
                         </div>
                     </div>
                 </CardContent>
