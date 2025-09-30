@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import Swal from 'sweetalert2'
 
 export default function  () {
 
@@ -47,6 +48,13 @@ export default function  () {
    <div className="flex items-center gap-4">
       <span className="text-sm">Pablo Cozzi (gerente) </span>
       <button
+         onClick={() => {
+            Swal.fire({
+                    text: "Sesion cerrada con exito",
+                    icon: "success"
+            });
+            navigate("/login");
+         }}
          className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md transition-colors cursor-pointer"
       >
          Cerrar Sesión
