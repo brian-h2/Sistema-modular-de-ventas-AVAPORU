@@ -7,7 +7,8 @@ import { connectDB } from "./db.js";
 import productsRouter from "./routes/products.routes.js";
 import salesRouter from "./routes/sales.routes.js";
 import expensesRouter from "./routes/expenses.routes.js";
-// import usersRouter from "./routes/users.routes.js";
+import authRouter from "./routes/auth.routes.js";
+import { authRequired, requireRole } from "./middlewares/auth.middleware.js";
 
 dotenv.config();
 
@@ -22,11 +23,6 @@ app.get("/", (req, res) => {
   res.send("API funcionando 🚀");
 });
 
-// const PORT = process.env.PORT || 4000;
-
-// app.listen(PORT, () => {
-//   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-// });
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, async () => {
@@ -41,8 +37,8 @@ app.use(cors({
 
 app.get("/health", (req, res) => res.json({ ok: true }));
 
-app.use("/products", productsRouter);
-app.use("/sales", salesRouter);
-app.use("/expenses", expensesRouter);
-// app.use("/users", usersRouter);
+app.use("/auth", authRouter);
 
+app.use("/products", authRequired, productsRouter);
+app.use("/sales",    authRequired, salesRouter);
+app.use("/expenses", authRequired, expensesRouter);
