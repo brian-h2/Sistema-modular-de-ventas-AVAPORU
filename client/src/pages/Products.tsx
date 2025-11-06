@@ -4,7 +4,6 @@ import {
   MagnifyingGlassIcon,
   PlusIcon,
   PencilIcon,
-  TrashIcon,
   FunnelIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,

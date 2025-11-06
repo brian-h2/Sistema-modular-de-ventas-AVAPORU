@@ -96,13 +96,6 @@ export default function ProductStockList({ refresh = false }: { refresh?: boolea
             <tbody className="divide-y divide-gray-100">
               {products.map((p) => {
                 const status = getStockStatus(p);
-                
-                    const sku = p.sku || "—";
-                    const nombre = p.nombre || "Sin nombre";
-                    const categoria = p.categoria || "General";
-                    const precio = Number(p.precio) || 0;
-                    const stock = Number(p.stockDisponible) || 0;
-                    const stockMinimo = Number(p.stockMinimo) || 0;
 
                 return (
                   <tr key={p._id} className="hover:bg-gray-50">

@@ -15,7 +15,7 @@ import Swal from "sweetalert2";
 
 export default function Sales() {
   const [sales, setSales] = useState<Sale[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const [refreshProducts, setRefreshProducts] = useState(false);
 
 
@@ -30,11 +30,10 @@ export default function Sales() {
 
   const fetchSales = async () => {
     setLoading(true);
-    try {
+    try {     
         const data = await listSales();
         setSales(data);
     } catch (error) {
-
         console.error("Error fetching sales:", error);
     } finally {
         setLoading(false);
