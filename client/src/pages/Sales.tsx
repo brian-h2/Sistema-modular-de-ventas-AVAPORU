@@ -184,135 +184,139 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       <ProductStockList refresh={refreshProducts} />
 
       {/* --- Form para crear nueva venta --- */}
-      <div className="bg-white shadow-md rounded-lg p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4 flex items-center space-x-2">
-          <PlusCircleIcon className="h-6 w-6 text-indigo-500" />
-          <span>Registrar Nueva Venta</span>
-        </h2>
+      {/* Contenedor principal (form + lista) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        
+        {/* --- Formulario Nueva Venta --- */}
+        <div className="bg-white shadow-md rounded-lg p-6 flex flex-col overflow-y-auto max-h-[75vh]">
+          <h2 className="text-xl font-semibold mb-4 flex items-center space-x-2">
+            <PlusCircleIcon className="h-6 w-6 text-indigo-500" />
+            <span>Registrar Nueva Venta</span>
+          </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block font-medium text-gray-700 mb-1">Cliente</label>
-            <input
-              type="text"
-              required
-              value={form.cliente}
-              onChange={(e) => setForm({ ...form, cliente: e.target.value })}
-              className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              placeholder="Nombre del cliente"
-            />
-          </div>
-
-          <div>
-            <h3 className="font-medium text-gray-700 mb-2">Productos / Items</h3>
-            {form.items.map((item, index) => (
-              <div key={index} className="grid grid-cols-12 gap-2 mb-2">
-                <input
-                  type="text"
-                  placeholder="Nombre del producto"
-                  value={item.nombre}
-                  onChange={(e) => handleChangeItem(index, "nombre", e.target.value)}
-                  className="col-span-6 border rounded px-3 py-2"
-                  required
-                />
-                <input
-                  type="number"
-                  placeholder="Cantidad"
-                  value={item.cantidad}
-                  onChange={(e) =>
-                    handleChangeItem(index, "cantidad", parseInt(e.target.value))
-                  }
-                  className="col-span-3 border rounded px-3 py-2"
-                  min={1}
-                  required
-                />
-                <input
-                  type="number"
-                  placeholder="Precio unitario"
-                  value={item.precioUnitario}
-                  onChange={(e) =>
-                    handleChangeItem(index, "precioUnitario", parseFloat(e.target.value))
-                  }
-                  className="col-span-3 border rounded px-3 py-2"
-                  min={0}
-                  required
-                />
-                {form.items.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveItem(index)}
-                    className="text-red-500 hover:text-red-700 ml-2"
-                  >
-                    <TrashIcon className="h-5 w-5" />
-                  </button>
-                )}
-              </div>
-            ))}
-            <button
-              type="button"
-              onClick={handleAddItem}
-              className="mt-2 text-indigo-600 hover:text-indigo-800 font-semibold"
-            >
-              + Agregar Item
-            </button>
-          </div>
-
-          <button
-            type="submit"
-            className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
-          >
-            Crear Venta
-          </button>
-        </form>
-      </div>
-
-      <div className="bg-white rounded-lg shadow p-4">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Órdenes de Venta</h2>
-        {sales.map((sale) => (
-          <div key={sale._id} className="border rounded-lg p-4 mb-4">
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="text-lg font-semibold">🔖{sale.cliente}</p>
-                <p className="text-sm text-gray-400">{`Fecha: ${sale.fecha}`}</p>
-              </div>
-              <div className="text-right">
-                <div className="flex space-x-2 mt-3">
-                  <button onClick={() => handleUpdateStatus(sale._id, "PAGADA")} className="text-green-600 hover:text-green-800 cursor-pointer">
-                    <CheckCircleIcon className="h-5 w-5" />
-                  </button>
-                  <button onClick={() => handleUpdateStatus(sale._id, "FACTURADA")} className="text-purple-600 hover:text-purple-800 cursor-pointer">
-                    <CurrencyDollarIcon className="h-5 w-5" />
-                  </button>
-                  <button onClick={() => handleUpdateStatus(sale._id, "CANCELADA")} className="text-red-600 hover:text-red-800 cursor-pointer">
-                    <TrashIcon className="h-5 w-5" />
-                </button>
-                </div>
-                <p className="text-sm text-gray-400">{sale.estado}</p>
-                <p className="text-xl font-semibold text-green-600 mt-2">
-                  ${sale.total.toLocaleString("es-AR")}
-                </p>
-              </div>
+          <form onSubmit={handleSubmit} className="space-y-4 flex-1">
+            <div>
+              <label className="block font-medium text-gray-700 mb-1">Cliente</label>
+              <input
+                type="text"
+                required
+                value={form.cliente}
+                onChange={(e) => setForm({ ...form, cliente: e.target.value })}
+                className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                placeholder="Nombre del cliente"
+              />
             </div>
 
-            <div className="mt-4">
-              {sale.items.map((item, i) => (
-                <div key={i} className="flex justify-between text-gray-600 border-b py-1">
-                  {/* <span>{item.product}</span> Anteriormente estaba asi pero apuntaba al object id por eso al construir la lista daba error*/}
-                  <span>{item.nombre}</span>
-                  <span>{`${item.cantidad} x $${item.precioUnitario.toLocaleString("es-AR")} = $${(item.cantidad * item.precioUnitario).toLocaleString("es-AR")}`}</span>
+            <div>
+              <h3 className="font-medium text-gray-700 mb-2">Productos / Items</h3>
+              {form.items.map((item, index) => (
+                <div key={index} className="grid grid-cols-12 gap-2 mb-2">
+                  <input
+                    type="text"
+                    placeholder="Nombre del producto"
+                    value={item.nombre}
+                    onChange={(e) => handleChangeItem(index, "nombre", e.target.value)}
+                    className="col-span-6 border rounded px-3 py-2"
+                    required
+                  />
+                  <input
+                    type="number"
+                    placeholder="Cantidad"
+                    value={item.cantidad}
+                    onChange={(e) => handleChangeItem(index, "cantidad", parseInt(e.target.value))}
+                    className="col-span-3 border rounded px-3 py-2"
+                    min={1}
+                    required
+                  />
+                  <input
+                    type="number"
+                    placeholder="Precio unitario"
+                    value={item.precioUnitario}
+                    onChange={(e) => handleChangeItem(index, "precioUnitario", parseFloat(e.target.value))}
+                    className="col-span-3 border rounded px-3 py-2"
+                    min={0}
+                    required
+                  />
+                  {form.items.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveItem(index)}
+                      className="text-red-500 hover:text-red-700 ml-2 cursor-pointer"
+                    >
+                      <TrashIcon className="h-5 w-5" />
+                    </button>
+                  )}
                 </div>
               ))}
+              <button
+                type="button"
+                onClick={handleAddItem}
+                className="mt-2 text-indigo-600 hover:text-indigo-800 font-semibold"
+              >
+                + Agregar Item
+              </button>
             </div>
 
-            {sale.notas && (
-              <div className="mt-2 text-sm text-gray-500">
-                <strong>Notas: </strong>
-                {sale.notas}
+            <button
+              type="submit"
+              className="w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition-colors duration-200"
+            >
+              Crear Venta
+            </button>
+          </form>
+        </div>
+
+        {/* --- Lista de Ventas --- */}
+        <div className="bg-white rounded-lg shadow p-6 overflow-y-auto max-h-[75vh]">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Órdenes de Venta</h2>
+          {sales.length === 0 && <p className="text-gray-500">No hay ventas registradas aún.</p>}
+          {sales.map((sale) => (
+            <div key={sale._id} className="border rounded-lg p-4 mb-4 hover:shadow-md transition-shadow">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-lg font-semibold">🔖 {sale.cliente}</p>
+                  <p className="text-sm text-gray-400">{`Fecha: ${sale.fecha}`}</p>
+                </div>
+                <div className="text-right">
+                  <div className="flex space-x-2 mt-3 justify-end">
+                    <button onClick={() => handleUpdateStatus(sale._id, "PAGADA")} className="text-green-600 hover:text-green-800 cursor-pointer">
+                      <CheckCircleIcon className="h-5 w-5" />
+                    </button>
+                    <button onClick={() => handleUpdateStatus(sale._id, "FACTURADA")} className="text-purple-600 hover:text-purple-800 cursor-pointer">
+                      <CurrencyDollarIcon className="h-5 w-5" />
+                    </button>
+                    <button onClick={() => handleUpdateStatus(sale._id, "CANCELADA")} className="text-red-600 hover:text-red-800 cursor-pointer">
+                      <TrashIcon className="h-5 w-5" />
+                    </button>
+                  </div>
+                  <p className="text-sm text-gray-400">{sale.estado}</p>
+                  <p className="text-xl font-semibold text-green-600 mt-2">
+                    ${sale.total.toLocaleString("es-AR")}
+                  </p>
+                </div>
               </div>
-            )}
-          </div>
-        ))}
+
+              <div className="mt-4">
+                {sale.items.map((item, i) => (
+                  <div key={i} className="flex justify-between text-gray-600 border-b py-1">
+                    <span>{item.nombre}</span>
+                    <span>{`${item.cantidad} x $${item.precioUnitario.toLocaleString("es-AR")} = $${(item.cantidad * item.precioUnitario).toLocaleString("es-AR")}`}</span>
+                  </div>
+                ))}
+              </div>
+
+              {sale.notas && (
+                <div className="mt-2 text-sm text-gray-500">
+                  <strong>Notas: </strong>
+                  {sale.notas}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
       </div>
+
     </div>
   );
 }
