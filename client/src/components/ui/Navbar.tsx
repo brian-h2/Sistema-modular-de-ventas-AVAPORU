@@ -14,7 +14,7 @@ export default function  () {
       <h1 className="text-2xl font-bold text-[#10b981]">Avaporu</h1>
       <div className="hidden md:flex gap-6">
          <button 
-            onClick={() => navigate("/")} 
+            onClick={() => navigate("/dashboard")} 
             className="px-3 py-2 rounded-md transition-colors bg-[#10b981] text-white cursor-pointer" 
         >
             Dashboard
