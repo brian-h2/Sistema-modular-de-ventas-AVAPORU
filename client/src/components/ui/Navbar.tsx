@@ -1,8 +1,12 @@
 import { useNavigate } from "react-router-dom";
+import Swal from 'sweetalert2'
 
 export default function  () {
 
   const navigate = useNavigate();
+
+  const name = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user") || '{}').nombre : "Usuario";
+  const rol = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user") || '{}').role : "Encargado";
 
   return (
     <nav className="bg-black text-white px-6 flex justify-between items-center h-16"> 
@@ -16,16 +20,16 @@ export default function  () {
             Dashboard
         </button>
         <button 
-            onClick={() => navigate("/Ventas")}
+            onClick={() => navigate("/sales")}
             className="px-3 py-2 rounded-md transition-colors hover:bg-gray-800 cursor-pointer"
         >
             Ventas
         </button>
-         {/* <button
+         <button
             className="px-3 py-2 rounded-md transition-colors hover:bg-gray-800 cursor-pointer"
-         > */}
-            {/* Stock</button
-         ><button
+            onClick={() => navigate("/stock")} 
+         > Stock</button>
+         {/* <button
             className="px-3 py-2 rounded-md transition-colors hover:bg-gray-800 cursor-pointer"
          >
             Compras</button
@@ -41,12 +45,23 @@ export default function  () {
             className="px-3 py-2 rounded-md transition-colors hover:bg-gray-800 cursor-pointer"
          >
             Usuarios
-         </button> */}
+         </button> */} 
       </div>
    </div>
    <div className="flex items-center gap-4">
-      <span className="text-sm">Pablo Cozzi (gerente) </span>
+      <span className="text-sm">{name + ' ' + '(' + rol + ')'} </span>
       <button
+         onClick={() => {
+
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+
+            Swal.fire({
+                    text: "Sesion cerrada con exito",
+                    icon: "success"
+            });
+            navigate("/login");
+         }}
          className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md transition-colors cursor-pointer"
       >
          Cerrar Sesión
