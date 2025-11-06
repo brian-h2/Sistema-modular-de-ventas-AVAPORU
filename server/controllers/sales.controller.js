@@ -56,10 +56,6 @@ export async function createSale(req, res) {
     // const total = mapeados.reduce((acc, it) => acc + it.subtotal, 0);
     const venta = await Sale.create({ items: mapeados, total, cliente });
 
-    console.log("Venta creada:", venta);
-    console.log("Descontando stock...");
-    console.log(stockDisponible);
-
     // Descontar stock
     await Promise.all(
       mapeados.map(it =>
