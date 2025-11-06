@@ -8,7 +8,7 @@ import {
   PlusCircleIcon,
   TrashIcon,
 } from "@heroicons/react/24/solid";
-import { listSales, createSale} from "../services/salesServices";
+import { listSales, createSale, updateSaleStatus} from "../services/salesServices";
 import ProductStockList from "./Products/ListProducts";
 import Swal from "sweetalert2";
 
@@ -17,7 +17,6 @@ export default function Sales() {
   const [sales, setSales] = useState<Sale[]>([]);
   const [, setLoading] = useState(false);
   const [refreshProducts, setRefreshProducts] = useState(false);
-
 
   const [form, setForm] = useState({
     cliente: "",
@@ -40,10 +39,26 @@ export default function Sales() {
     }
 };
 
+//Metodo para actualizar el estado de una venta
+const handleUpdateStatus = async (id: string, estado: Sale["estado"]) => {
+  try {
+    await updateSaleStatus(id, estado);
+    await fetchSales();
+    Swal.fire({
+      icon: "success",
+      title: "Estado actualizado",
+      text: `La venta fue marcada como ${estado}`,
+      timer: 1200,
+      showConfirmButton: false,
+    });
+  } catch {
+    Swal.fire({ icon: "error", title: "Error", text: "No se pudo actualizar el estado" });
+  }
+};
 
-  const handleAddItem = () => {
-    setForm({ ...form, items: [...form.items, { nombre: "", cantidad: 1, precioUnitario: 0 }] });
-  };
+const handleAddItem = () => {
+  setForm({ ...form, items: [...form.items, { nombre: "", cantidad: 1, precioUnitario: 0 }] });
+};
 
 interface Item {
     product: string;
@@ -53,7 +68,7 @@ interface Item {
 }
 
 interface Sale {
-    id: string;
+    _id: string;
     cliente: string;
     fecha: string;
     total: number;
@@ -139,7 +154,9 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
           <UserIcon className="h-6 w-6 text-blue-500" />
           <div>
             <h2 className="text-gray-500">Clientes</h2>
-            <p className="text-2xl font-semibold text-blue-500">12</p>
+            <p className="text-2xl font-semibold text-blue-500">
+              {new Set(sales.map((s) => s.cliente)).size} {/* Mapeamos los clientes y usamos Set para contar únicos */}
+            </p>
           </div>
         </div>
         <div className="bg-white shadow rounded-lg p-4 flex items-center space-x-3">
@@ -252,23 +269,25 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       <div className="bg-white rounded-lg shadow p-4">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">Órdenes de Venta</h2>
         {sales.map((sale) => (
-          <div key={sale.id} className="border rounded-lg p-4 mb-4">
+          <div key={sale._id} className="border rounded-lg p-4 mb-4">
             <div className="flex justify-between items-center">
               <div>
-                <h3 className="text-lg font-semibold">🔖 {sale.id}</h3>
-                <p className="text-gray-500">{sale.cliente}</p>
+                <p className="text-lg font-semibold">🔖{sale.cliente}</p>
                 <p className="text-sm text-gray-400">{`Fecha: ${sale.fecha}`}</p>
               </div>
               <div className="text-right">
-                <span
-                  className={`text-sm font-medium px-2 py-1 rounded-full 
-                    ${sale.estado === "CREADA" && "bg-gray-200 text-gray-700"}
-                    ${sale.estado === "PAGADA" && "bg-green-100 text-green-700"}
-                    ${sale.estado === "FACTURADA" && "bg-purple-100 text-purple-700"}
-                    ${sale.estado === "CANCELADA" && "bg-red-100 text-red-700"}`}
-                >
-                  {sale.estado}
-                </span>
+                <div className="flex space-x-2 mt-3">
+                  <button onClick={() => handleUpdateStatus(sale._id, "PAGADA")} className="text-green-600 hover:text-green-800 cursor-pointer">
+                    <CheckCircleIcon className="h-5 w-5" />
+                  </button>
+                  <button onClick={() => handleUpdateStatus(sale._id, "FACTURADA")} className="text-purple-600 hover:text-purple-800 cursor-pointer">
+                    <CurrencyDollarIcon className="h-5 w-5" />
+                  </button>
+                  <button onClick={() => handleUpdateStatus(sale._id, "CANCELADA")} className="text-red-600 hover:text-red-800 cursor-pointer">
+                    <TrashIcon className="h-5 w-5" />
+                </button>
+                </div>
+                <p className="text-sm text-gray-400">{sale.estado}</p>
                 <p className="text-xl font-semibold text-green-600 mt-2">
                   ${sale.total.toLocaleString("es-AR")}
                 </p>

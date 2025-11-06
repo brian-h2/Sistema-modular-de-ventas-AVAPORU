@@ -9,3 +9,9 @@ export const createSale = async (saleData: { productos: Array<{ productId: strin
     const response = await API.post("/sales", saleData);
     return response.data;
 }
+
+export const updateSaleStatus = async (saleId: string, newStatus: string) => {
+  console.log("Updating sale:", saleId, "to status:", newStatus);
+    const response = await API.put(`/sales/${saleId}/estado`, { estado: newStatus });
+    return response.data;
+}
