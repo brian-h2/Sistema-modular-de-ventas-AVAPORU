@@ -9,9 +9,9 @@ function signToken(user) {
 
 export async function register(req, res) {
   try {
-    const { email, password, nombre, role } = req.body;
+    const { email, password, username, role } = req.body;
 
-    if (!email || !password) return res.status(400).json({ error: "Email y password son requeridos" });
+    if (!email || !password || !username) return res.status(400).json({ error: "Email y password son requeridos" });
     const exists = await User.findOne({ email });
     if (exists) return res.status(409).json({ error: "El email ya está registrado" });
 
@@ -19,12 +19,12 @@ export async function register(req, res) {
     if (String(password).length < 6) return res.status(400).json({ error: "La contraseña debe tener al menos 6 caracteres" });
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const user = await User.create({ email, nombre, role, passwordHash });
+    const user = await User.create({ email, nombre: username, role, passwordHash });
 
     const token = signToken(user);
     res.status(201).json({
       token,
-      user: { id: user._id, email: user.email, nombre: user.nombre, role: user.role }
+      user: { id: user._id, email: user.email, nombre: user.username, role: user.role }
     });
   } catch (e) {
     res.status(400).json({ error: e.message });
@@ -41,7 +41,6 @@ export async function login(req, res) {
 
     const ok = await bcrypt.compare(password, user.passwordHash);
     if (!ok) return res.status(401).json({ error: "Credenciales inválidas" });
-
     const token = signToken(user);
     res.json({
       token,

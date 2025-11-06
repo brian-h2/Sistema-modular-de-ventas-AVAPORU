@@ -1,25 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2'
-
-// Usuarios de ejemplo para la demo
-const mockUsers = [
-  {
-    id: '1',
-    username: 'gerente',
-    role: 'gerente',
-    name: 'María González'
-  },
-  {
-    id: '2',
-    username: 'encargado',
-    role: 'encargado',
-    name: 'Carlos Pérez'
-  }
-];
+import { loginUser } from '../../services/userService';
 
 export default function Login() {
-  const [credentials, setCredentials] = useState({ username: '', password: '' });
+  const [credentials, setCredentials] = useState({ email: '', password: '' });
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate(); 
 
@@ -27,28 +12,37 @@ export default function Login() {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simular verificación con delay
-    await new Promise(resolve => setTimeout(resolve, 800));
+    try {
 
-    const user = mockUsers.find(u => u.username === credentials.username);
+        const response = await loginUser({
+          email: credentials.email,
+          password: credentials.password
+        });
 
-    if (!user || credentials.password !== '123456') {
-      Swal.fire({
+        await new Promise (resolve => setTimeout(resolve, 800));
+
+        Swal.fire({
+            title: response?.message || "Inicio de sesión exitoso",
+            text: response?.details || "Bienvenido de nuevo",
+            icon: "success"
+        });
+
+        localStorage.setItem("token", response.token);
+        localStorage.setItem("user", JSON.stringify(response.user));
+
+        navigate('/dashboard');
+
+    } catch (error: any) {
+
+        Swal.fire({
             icon: "error",
-            title: "Error",
-            text: "Usuario o contraseña incorrecta",
+            title:"Error en el inicio de sesion",
+            text: error?.response?.data?.error || "Por favor, intenta nuevamente",
         });
-      setIsLoading(false);
-      return;
-    }
 
-    Swal.fire({
-        title: "Bienvenido, " + user.name,
-        text: "Sesion iniciada con exito",
-        icon: "success"
-        });
-    navigate('/dashboard');
-    setIsLoading(false);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -71,15 +65,15 @@ export default function Login() {
         {/* Formulario */}
         <form onSubmit={handleLogin} className="mt-6 space-y-4">
           <div className="space-y-1">
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-              Usuario
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              Email
             </label>
             <input
-              id="username"
+              id="email"
               type="text"
-              placeholder="Ingrese su usuario"
-              value={credentials.username}
-              onChange={(e) => setCredentials(prev => ({ ...prev, username: e.target.value }))}
+              placeholder="Ingrese su email"
+              value={credentials.email}
+              onChange={(e) => setCredentials(prev => ({ ...prev, email: e.target.value }))}
               className="w-full h-12 px-3 border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
               required
             />
@@ -106,6 +100,15 @@ export default function Login() {
             className="w-full h-12 flex justify-center items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white cursor-pointer font-semibold rounded-md shadow"
           >
             {isLoading ? "Verificando..." : "Iniciar Sesión"}
+          </button>
+
+          <button
+            type="button"
+            className="w-full flex justify-center"
+          >
+            <a href="/register" className="text-sm text-gray-600 hover:text-gray-800">
+              ¿No tienes una cuenta? Regístrate
+            </a>
           </button>
         </form>
 

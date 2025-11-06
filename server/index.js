@@ -3,6 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import { connectDB } from "./db.js";
+import swaggerUi from "swagger-ui-express";
+import YAML from "yamljs";
 
 import productsRouter from "./routes/products.routes.js";
 import salesRouter from "./routes/sales.routes.js";
@@ -13,6 +15,13 @@ import { authRequired, requireRole } from "./middlewares/auth.middleware.js";
 dotenv.config();
 
 const app = express();
+
+// Cargar swagger
+const swaggerDocument = YAML.load("swagger.yaml");
+
+//Ruta de swagger
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 
 // Middlewares
 app.use(cors());
