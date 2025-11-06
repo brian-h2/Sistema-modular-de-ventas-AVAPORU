@@ -99,3 +99,19 @@ export async function getSale(req, res) {
   }
 
 }
+
+export async function updateSaleStatus(req,res) {
+   try {
+    console.log(req.params.id, req.body);
+    const { estado } = req.body;
+    const venta = await Sale.findByIdAndUpdate(
+      req.params.id,
+      { estado },
+      { new: true }
+    );
+    if (!venta) return res.status(404).json({ message: 'Venta no encontrada' });
+    res.json(venta);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

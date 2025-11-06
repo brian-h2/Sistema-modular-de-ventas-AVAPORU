@@ -47,7 +47,7 @@ app.use(cors({
 app.get("/health", (req, res) => res.json({ ok: true }));
 
 app.use("/auth", authRouter);
-
+ 
 app.use("/products", authRequired, productsRouter);
 app.use("/sales",    authRequired, salesRouter);
 app.use("/expenses", authRequired, expensesRouter);
