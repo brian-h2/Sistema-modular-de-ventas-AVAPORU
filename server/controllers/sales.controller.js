@@ -102,7 +102,6 @@ export async function getSale(req, res) {
 
 export async function updateSaleStatus(req,res) {
    try {
-    console.log(req.params.id, req.body);
     const { estado } = req.body;
     const venta = await Sale.findByIdAndUpdate(
       req.params.id,
