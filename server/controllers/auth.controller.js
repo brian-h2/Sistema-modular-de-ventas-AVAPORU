@@ -57,3 +57,8 @@ export async function me(req, res) {
   if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
   res.json(user);
 }
+
+export async function listUsers(req, res) {
+  const users = await User.find();
+  res.json(users);
+}

@@ -202,7 +202,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                 required
                 value={form.cliente}
                 onChange={(e) => setForm({ ...form, cliente: e.target.value })}
-                className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
                 placeholder="Nombre del cliente"
               />
             </div>
@@ -216,7 +216,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                     placeholder="Nombre del producto"
                     value={item.nombre}
                     onChange={(e) => handleChangeItem(index, "nombre", e.target.value)}
-                    className="col-span-6 border rounded px-3 py-2"
+                    className="col-span-6 border  border-gray-300 rounded px-3 py-2"
                     required
                   />
                   <input
@@ -224,7 +224,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                     placeholder="Cantidad"
                     value={item.cantidad}
                     onChange={(e) => handleChangeItem(index, "cantidad", parseInt(e.target.value))}
-                    className="col-span-3 border rounded px-3 py-2"
+                    className="col-span-3 border  border-gray-300 rounded px-3 py-2"
                     min={1}
                     required
                   />
@@ -233,7 +233,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                     placeholder="Precio unitario"
                     value={item.precioUnitario}
                     onChange={(e) => handleChangeItem(index, "precioUnitario", parseFloat(e.target.value))}
-                    className="col-span-3 border rounded px-3 py-2"
+                    className="col-span-3 border  border-gray-300 rounded px-3 py-2"
                     min={0}
                     required
                   />
@@ -271,7 +271,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Órdenes de Venta</h2>
           {sales.length === 0 && <p className="text-gray-500">No hay ventas registradas aún.</p>}
           {sales.map((sale) => (
-            <div key={sale._id} className="border rounded-lg p-4 mb-4 hover:shadow-md transition-shadow">
+            <div key={sale._id} className="border  border-gray-300 rounded-lg p-4 mb-4 hover:shadow-md transition-shadow">
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-lg font-semibold">🔖 {sale.cliente}</p>
@@ -298,7 +298,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
               <div className="mt-4">
                 {sale.items.map((item, i) => (
-                  <div key={i} className="flex justify-between text-gray-600 border-b py-1">
+                  <div key={i} className="flex justify-between text-gray-600 border-b  border-gray-300  py-1">
                     <span>{item.nombre}</span>
                     <span>{`${item.cantidad} x $${item.precioUnitario.toLocaleString("es-AR")} = $${(item.cantidad * item.precioUnitario).toLocaleString("es-AR")}`}</span>
                   </div>

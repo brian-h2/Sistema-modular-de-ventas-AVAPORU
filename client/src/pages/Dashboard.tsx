@@ -2,6 +2,16 @@ import {  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,  LineChart,
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { TrendingUp } from 'lucide-react';
 
+import SalesSummaryCard from "../components/ui/SalesSummary/SalesSummary";
+import ProductsSummaryCard from '../components/ui/ProductsSummary/ProductsSummary';
+import ProductsStockList from '../components/ui/ProductsSummary/ProductsStockList';
+
+import { listSales } from '../services/salesServices';
+import { useEffect, useState } from 'react';
+import { listProducts } from '../services/productsService';
+import SalesCategory from '../components/ui/SalesSummary/SalesCategory';
+import ManagerActions from '../components/ui/ManagerSummary/ManagerActions';
+
 
 /*Datos para elaborar el grafico temporal*/
 
@@ -20,52 +30,88 @@ const monthlyRevenue = [
     { month: 'Dic', revenue: 500000, sales: 950 },
 ];
 
-export default function Dashboard() {    
+export default function Dashboard() {   
 
+    //Obtenemos los datos del usuario mas la fecha de hoy
+    const user = localStorage.getItem('user');
+    const userData = user ? JSON.parse(user) : null;
+
+    const today = new Date();
+    const monthDescription = today.toLocaleString('default', { month: 'long' });
+    const year = today.getFullYear();
+    const day = today.getDate();
+    const dayName = today.toLocaleString('es-ES', { weekday: 'long' });
+
+    //Interfaces para ventas y productos
+    interface Sale {
+        fecha: string;
+        total: number;
+        categoria: string;
+        items: {
+            cantidad: number;
+            product: {
+                categoria: string;
+            }
+        }[];
+    }
+
+    
+    interface Product {
+        _id: string;
+        nombre: string;
+        stockDisponible: number;
+        stockMinimo: number;
+        categoria?: string;
+    }
+
+
+  // State para ventas y productos
+  const [sales, setSales] = useState<Sale[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    // Simulamos la obtención de datos de ventas desde una API o base de datos
+    const fetchSales = async () => {
+        const salesData = await listSales();
+        setSales(salesData);
+    };
+    const fetchProducts = async () => { 
+        const productsData = await listProducts()
+        setProducts(productsData);
+    }
+    fetchSales();
+    fetchProducts();
+  }, []);
 
   return (
     
    <div className="p-8 bg-gray-100 min-h-screen flex flex-col gap-9">
-    {/* HEADER */}
-    <div className="mb-8">
-        <h1 className="text-4xl font-extrabold text-gray-800">Dashboard Gerencial</h1>
-        <h2 className="text-lg text-gray-600 mt-1">Bienvenido al panel de control</h2>
-    </div>
-
-        {/* GRID CARDS */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            
-            {/* Ventas del día */}
-            <div className=" bg-gradient-to-r from-[#10b981] to-[#059669] rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-6">
-                <h1 className="text-lg font-semibold text-white mb-6">Ventas del día 💲</h1>
-                <p className="text-2xl font-bold text-white">$15.660</p>
-                <p className="text-sm text-white mt-1">Comparado con ayer: <span className="text-white font-medium">+5%</span></p>
-            </div>
-
-            {/* Órdenes procesadas */}
-            <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-6">
-                <h1 className="text-lg font-semibold text-gray-700 mb-6">Órdenes procesadas 📈</h1>
-                <p className="text-2xl font-bold text-blue-600">23</p>
-                <p className="text-sm text-gray-500 mt-1">Comparado con ayer: <span className="text-blue-600 font-medium">+6%</span></p>
-            </div>
-
-            {/* Stock crítico */}
-            <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-6">
-                <h1 className="text-lg font-semibold text-gray-700 mb-6">Stock crítico ⚠️</h1>
-                <p className="text-2xl font-bold text-yellow-600">3</p>
-                <p className="text-sm text-gray-500 mt-1">Productos en falta</p>
-            </div>
-
-            {/* Gastos del día */}
-            <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-6">
-                <h1 className="text-lg font-semibold text-gray-700 mb-6">Gastos del día 📉</h1>
-                <p className="text-2xl font-bold text-red-600">$300.000</p>
-                <p className="text-sm text-gray-500 mt-1">Gastos registrados</p>
-            </div>
+        {/* HEADER */}
+        <div className="mb-8">
+            <h1 className="text-4xl font-extrabold text-gray-800">Dashboard Gerencial</h1>
+            <h2 className="text-lg text-gray-600 mt-1">Bienvenido, {userData.nombre} - {dayName},  {day} de  {monthDescription} de {year}</h2>
         </div>
-        <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
 
-            <Card className="col-span-2 bg-white rounded-xl shadow-md p-6">
+            {/* GRID CARDS */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                
+                {/* Ventas del día + ordenes procesadas */}
+                <SalesSummaryCard sales={sales} />
+
+                {/* Stock crítico */}
+                <ProductsSummaryCard products={products} />
+
+                {/* Gastos del día */}
+                <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-6">
+                    <h1 className="text-lg font-semibold text-gray-700 mb-6">Gastos del día 📉</h1>
+                    <p className="text-2xl font-bold text-red-600">$300.000</p>
+                    <p className="text-sm text-gray-500 mt-1">Gastos registrados</p>
+                </div>
+            </div>
+            <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
+                <div className="lg:col-span-2 space-y-6 ">
+                    <SalesCategory sales={sales}/>
+                      <Card className="bg-white rounded-xl shadow-md p-6">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                     <TrendingUp className="w-5 h-5 text-[#10b981]" />
@@ -97,75 +143,12 @@ export default function Dashboard() {
                     </div>
                 </CardContent>
             </Card>
-
-            <Card className="col-span-1 bg-white rounded-xl shadow p-6 ">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        Alertas de stock ⚠️
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className='px-6 [&amp;:last-child]:pb-6 space-y-3'>
-                    <div className="flex items-center justify-between p-3 rounded-lg ">
-                        <div className="flex-1">
-                            <p className="font-medium text-sm">Nike Air Max 270</p>
-                            <p className="text-xs text-gray-600">Deportivas</p>
-                        </div>
-                         <div className="text-center">
-                            <p className="font-bold">3</p>
-                            <span
-                                data-slot="badge"
-                                className="inline-flex items-center justify-center rounded-md border py-0.5 font-medium w-fit whitespace-nowrap shrink-0 [&amp;&gt;svg]:size-3 gap-1 [&amp;&gt;svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden [a&amp;]:hover:bg-primary/90 text-xs bg-red-100 text-red-800 border-red-300"
-                                >Crítico
-                            </span>
-                        </div>
-                    </div>
-                    <div className="flex items-center justify-between p-3 rounded-lg ">
-                        <div className="flex-1">
-                            <p className="font-medium text-sm">Adidas Superstar</p>
-                            <p className="text-xs text-gray-600">Urbanas</p>
-                        </div>
-                        <div className="text-center">
-                            <p className="font-bold">8</p>
-                            <span
-                                data-slot="badge"
-                                className="inline-flex items-center justify-center rounded-md border px-2 py-0.5 font-medium w-fit whitespace-nowrap shrink-0 [&amp;&gt;svg]:size-3 gap-1 [&amp;&gt;svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden [a&amp;]:hover:bg-primary/90 text-xs bg-yellow-100 text-yellow-800 border-yellow-300"
-                                >Bajo
-                            </span>
-                        </div>
-                    </div>
-                    <div className="flex items-center justify-between p-3 rounded-lg">
-                        <div className="flex-1">
-                            <p className="font-medium text-sm">Cordones Premium</p>
-                            <p className="text-xs text-gray-600">Accesorios</p>
-                        </div>
-                        <div className="text-center">
-                            <p className="font-bold">15</p>
-                            <span
-                                data-slot="badge"
-                                className="inline-flex items-center justify-center rounded-md border px-2 py-0.5 font-medium w-fit whitespace-nowrap shrink-0 [&amp;&gt;svg]:size-3 gap-1 [&amp;&gt;svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden [a&amp;]:hover:bg-primary/90 text-xs bg-yellow-100 text-yellow-800 border-yellow-300"
-                                >Bajo
-                            </span>
-                        </div>
-                    </div>
-                    <div className="flex items-center justify-between p-3 rounded-lg">
-                        <div className="flex-1">
-                            <p className="font-medium text-sm">Vans KNU Clasic</p>
-                            <p className="text-xs text-gray-600">Urbanas</p>
-                        </div>
-                        <div className="text-center">
-                            <p className="font-bold">9</p>
-                            <span
-                                data-slot="badge"
-                                className="inline-flex items-center justify-center rounded-md border px-2 py-0.5 font-medium w-fit whitespace-nowrap shrink-0 [&amp;&gt;svg]:size-3 gap-1 [&amp;&gt;svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden [a&amp;]:hover:bg-primary/90 text-xs bg-yellow-100 text-yellow-800 border-yellow-300"
-                                >Bajo
-                            </span>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-
-        </div>
-    
+                </div>
+                <div className="space-y-6">
+                   <ProductsStockList products={products} />
+                    <ManagerActions />
+                </div>
+            </div>
     </div>
   )
 }
