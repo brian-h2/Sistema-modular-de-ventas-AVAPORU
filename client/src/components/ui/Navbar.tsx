@@ -29,14 +29,29 @@ export default function  () {
             className="px-3 py-2 rounded-md transition-colors hover:bg-gray-800 cursor-pointer"
             onClick={() => navigate("/stock")} 
          > Stock</button>
+         <button
+            className="px-3 py-2 rounded-md transition-colors hover:bg-gray-800 cursor-pointer"
+             onClick={() => navigate("/users")}
+         >
+            Usuarios
+         </button>
+         <button
+            className="px-3 py-2 rounded-md transition-colors hover:bg-gray-800 cursor-pointer"
+             onClick={() => navigate("/expenses")}
+         >
+            Gastos
+         </button>
+         <button
+            className="px-3 py-2 rounded-md transition-colors hover:bg-gray-800 cursor-pointer"
+             onClick={() => navigate("/reports")}
+         >
+            Reportes
+         </button>
          {/* <button
             className="px-3 py-2 rounded-md transition-colors hover:bg-gray-800 cursor-pointer"
          >
             Compras</button
-         ><button
-            className="px-3 py-2 rounded-md transition-colors hover:bg-gray-800 cursor-pointer"
          >
-            Gastos</button
          ><button
             className="px-3 py-2 rounded-md transition-colors hover:bg-gray-800 cursor-pointer"
          >
