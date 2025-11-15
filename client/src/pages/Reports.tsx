@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import {
@@ -9,39 +9,39 @@ import {
   DollarSign,
   Package,
   Users,
-  BarChart3,
-  PieChart,
-  LineChart,
+  // BarChart3,
+  // PieChart,
+  // LineChart,
   Filter,
   Search,
   Eye,
   Mail,
-  Plus,
+  // Plus,
 } from "lucide-react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart as RechartsPieChart,
-  Pie,
-  Cell,
-  AreaChart,
-  Area,
-} from "recharts";
+// import {
+//   BarChart,
+//   Bar,
+//   XAxis,
+//   YAxis,
+//   CartesianGrid,
+//   Tooltip,
+//   ResponsiveContainer,
+//   PieChart as RechartsPieChart,
+//   Pie,
+//   Cell,
+//   AreaChart,
+//   Area,
+// } from "recharts";
 
-interface User {
-  nombre: string;
-  email: string;
-  role: string;
-}
+// interface User {
+//   nombre: string;
+//   email: string;
+//   role: string;
+// }
 
-interface ReportsModuleProps {
-  user: User;
-}
+// interface ReportsModuleProps {
+//   user: User;
+// }
 
 interface Report {
   id: string;
@@ -53,20 +53,6 @@ interface Report {
   format: "pdf" | "excel" | "csv";
 }
 
-const salesData = [
-  { month: "Ene", sales: 850000, orders: 125, profit: 280000 },
-  { month: "Feb", sales: 920000, orders: 142, profit: 315000 },
-  { month: "Mar", sales: 780000, orders: 118, profit: 245000 },
-  { month: "Abr", sales: 1150000, orders: 168, profit: 395000 },
-  { month: "May", sales: 1280000, orders: 195, profit: 445000 },
-  { month: "Jun", sales: 1420000, orders: 218, profit: 510000 },
-];
-
-const categoryDistribution = [
-  { name: "Deportivas", value: 45 },
-  { name: "Urbanas", value: 35 },
-  { name: "Accesorios", value: 20 },
-];
 
 const predefinedReports: Report[] = [
   {
@@ -109,11 +95,9 @@ const predefinedReports: Report[] = [
   },
 ];
 
-const COLORS = ["#10b981", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6"];
 
 export function ReportsModule() {
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [selectedPeriod, setSelectedPeriod] = useState("current-month");
   const [reportType, setReportType] = useState("all");
 
   // 🔔 Helpers con SweetAlert2

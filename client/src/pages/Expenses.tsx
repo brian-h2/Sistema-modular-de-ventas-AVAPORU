@@ -1,10 +1,8 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   DollarSign,
   Plus,
   Calendar,
-  Filter,
   FileText,
   TrendingUp,
   TrendingDown,
@@ -30,10 +28,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
+  ResponsiveContainer
 } from "recharts";
 
 // --- Datos mockeados ---
@@ -53,14 +48,12 @@ const expenses = [
   { id: "4", date: "2024-09-05", category: "personal", description: "Sueldo empleado", amount: 95000, paymentMethod: "transferencia", notes: "Sueldo + presentismo" },
 ];
 
-const COLORS = ["#ef4444", "#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#06b6d4"];
 
 export default function ExpensesModule() {
 
-  const navigate = useNavigate();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedCategory, ] = useState("all");
   const [newExpense, setNewExpense] = useState({
     category: "",
     description: "",

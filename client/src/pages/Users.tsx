@@ -1,7 +1,7 @@
 import { useState,useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card";
+import { Card, CardContent, CardTitle } from "../components/ui/Card";
 import {
-  Plus, Users, Shield, CheckCircle, Key, Edit3, Calendar, Mail, Phone
+  Plus, Users, Shield, CheckCircle, Key, Edit3, Calendar, Phone
 } from "lucide-react";
 import { listUsers } from "../services/userService";
 
