@@ -8,6 +8,9 @@ import NotFound from "../pages/NotFound";
 import Sales from "../pages/Sales";
 import Register from "../pages/Auth/Register";
 import Stock from "../pages/Products";
+import Users from "../pages/Users";
+import Expenses from "../pages/Expenses";
+import { ReportsModule } from "../pages/Reports";
 
 function MainLayout() {
   return (
@@ -36,6 +39,10 @@ export default function AppRoutes() {
           <Route path="/stock" element={<Stock />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/sales" element={<Sales />} />
+          <Route path="/expenses" element={<Expenses />} />
+          <Route path="/users" element={<Users />} />
+          <Route path="/reports" element={<ReportsModule />} />
+
         </Route>
       </Route>
     </Routes>
