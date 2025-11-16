@@ -8,6 +8,7 @@ import productsRouter from "./routes/products.routes.js";
 import salesRouter from "./routes/sales.routes.js";
 import expensesRouter from "./routes/expenses.routes.js";
 import authRouter from "./routes/auth.routes.js";
+import reportesRouter from "./routes/reports.routes.js";
 import { authRequired, requireRole } from "./middlewares/auth.middleware.js";
 
 dotenv.config();
@@ -42,3 +43,4 @@ app.use("/auth", authRouter);
 app.use("/products", authRequired, productsRouter);
 app.use("/sales",    authRequired, salesRouter);
 app.use("/expenses", authRequired, expensesRouter);
+app.use("/reportes", authRequired, reportesRouter);
