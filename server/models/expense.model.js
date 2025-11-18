@@ -5,6 +5,7 @@ const expenseSchema = new mongoose.Schema({
   categoria: { type: String, required: true, trim: true },
   descripcion: { type: String, trim: true },
   monto: { type: Number, required: true, min: 0 },
+  presupuestoDisponible: { type: Number, required: true, min: 0 }
 }, { timestamps: true });
 
 export default mongoose.model("Expense", expenseSchema);
