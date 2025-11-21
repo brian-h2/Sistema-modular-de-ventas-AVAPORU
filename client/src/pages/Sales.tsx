@@ -110,6 +110,11 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       };
 
       await createSale(saleData);
+      Swal.fire({
+        icon: "success",
+        title: "Venta registrada",
+        text: "La venta ha sido creada exitosamente.",
+      });
       
       // Recargar ventas después de crear
       await fetchSales();
@@ -209,7 +214,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
             <div>
               <h3 className="font-medium text-gray-700 mb-2">Productos / Items</h3>
-              <p  className="font-light text-gray-500 mb-4">Se debe colocar el nombre de un producto que este presente en el listado de arriba.</p>
+              <p  className="font-light text-gray-500 mb-4">Se debe colocar el codigo de un producto que este presente en el listado de arriba.</p>
               {form.items.map((item, index) => (
                 <div key={index} className="grid grid-cols-12 gap-2 mb-2">
                   <input
@@ -260,7 +265,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
             <button
               type="submit"
-              className="w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition-colors duration-200"
+              className="w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition-colors duration-200 cursor-pointer"
             >
               Crear Venta
             </button>

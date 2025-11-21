@@ -9,8 +9,6 @@ const API = axios.create({
     },
 });
 
-console.log("API:", import.meta.env.VITE_API_URL);
-
 //Interceptor para agregar el token a las solicitudes
 API.interceptors.request.use((config) => {
     const token = localStorage.getItem("token");
