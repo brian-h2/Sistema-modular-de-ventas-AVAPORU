@@ -17,4 +17,4 @@ const saleSchema = new mongoose.Schema({
   estado: { type: String, enum: ["CREADA","PAGADA","FACTURADA","CANCELADA"], default: "CREADA" },
 }, { timestamps: true });
 
-export default mongoose.model("Sale", saleSchema);
+export default mongoose.models.Sale || mongoose.model("Sale", saleSchema);

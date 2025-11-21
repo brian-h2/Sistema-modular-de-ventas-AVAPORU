@@ -2,173 +2,105 @@ import { useState } from "react";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import {
-  FileText,
   Download,
   Calendar,
-  TrendingUp,
-  DollarSign,
-  Package,
-  Users,
-  // BarChart3,
-  // PieChart,
-  // LineChart,
-  Filter,
-  Search,
-  Eye,
-  Mail,
-  // Plus,
 } from "lucide-react";
-// import {
-//   BarChart,
-//   Bar,
-//   XAxis,
-//   YAxis,
-//   CartesianGrid,
-//   Tooltip,
-//   ResponsiveContainer,
-//   PieChart as RechartsPieChart,
-//   Pie,
-//   Cell,
-//   AreaChart,
-//   Area,
-// } from "recharts";
+import { useEffect } from "react";
+import { createReport, deleteReport, getSalesReport, listReports } from "../services/reportService";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card";
+import { ResponsiveContainer, BarChart, XAxis, YAxis, Tooltip, Bar } from "recharts";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas-pro";
 
-// interface User {
-//   nombre: string;
-//   email: string;
-//   role: string;
-// }
-
-// interface ReportsModuleProps {
-//   user: User;
-// }
-
-interface Report {
-  id: string;
-  name: string;
-  description: string;
-  type: "sales" | "inventory" | "financial" | "customer";
-  lastGenerated: string;
-  size: string;
-  format: "pdf" | "excel" | "csv";
+interface VentaDetalle {
+  descripcion: string;
+  total: number;
+  fecha: string;
 }
 
 
-const predefinedReports: Report[] = [
-  {
-    id: "1",
-    name: "Reporte de Ventas Mensual",
-    description:
-      "Análisis completo de ventas, productos más vendidos y tendencias del mes",
-    type: "sales",
-    lastGenerated: "2024-09-08",
-    size: "2.4 MB",
-    format: "pdf",
-  },
-  {
-    id: "2",
-    name: "Estado de Inventario",
-    description: "Stock actual, productos críticos y valorización del inventario",
-    type: "inventory",
-    lastGenerated: "2024-09-07",
-    size: "1.8 MB",
-    format: "excel",
-  },
-  {
-    id: "3",
-    name: "Balance Financiero",
-    description: "Ingresos, gastos, márgenes y flujo de efectivo del período",
-    type: "financial",
-    lastGenerated: "2024-09-06",
-    size: "3.2 MB",
-    format: "pdf",
-  },
-  {
-    id: "4",
-    name: "Análisis de Clientes",
-    description:
-      "Clientes frecuentes, tickets promedio y segmentación por compras",
-    type: "customer",
-    lastGenerated: "2024-09-05",
-    size: "1.5 MB",
-    format: "excel",
-  },
-];
+
+const exportarPDF = async () => {
+  const element = document.getElementById("pdfArea");
+  if (!element) return;
+
+  const canvas = await html2canvas(element, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: "#ffffff",
+  });
+
+  const imgData = canvas.toDataURL("image/png");
+  const pdf = new jsPDF("landscape", "mm", "a4");
+
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfHeight = pdf.internal.pageSize.getHeight();
+
+  pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+  pdf.save("reporte_ventas.pdf");
+};
 
 
 export function ReportsModule() {
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [reportType, setReportType] = useState("all");
+  const [reportes, setReportes] = useState<any[]>([]);
+  const [filterDesde, setFilterDesde] = useState("");
+  const [filterHasta, setFilterHasta] = useState("");
+  const [salesReport, setSalesReport] = useState<any>(null);
 
-  // 🔔 Helpers con SweetAlert2
-  const showSuccess = (msg: string) =>
-    Swal.fire({
-      icon: "success",
-      title: "Éxito",
-      text: msg,
-      confirmButtonColor: "#10b981",
-      timer: 2200,
-      showConfirmButton: false,
-    });
-
-  const showInfo = (msg: string) =>
-    Swal.fire({
-      icon: "info",
-      title: "Información",
-      text: msg,
-      confirmButtonColor: "#3b82f6",
-      timer: 2000,
-      showConfirmButton: false,
-    });
-
-  const showLoading = async (msg: string, callback: () => void) => {
-    Swal.fire({
-      title: msg,
-      didOpen: () => Swal.showLoading(),
-      allowOutsideClick: false,
-      allowEscapeKey: false,
-      showConfirmButton: false,
-    });
-    setTimeout(() => {
-      Swal.close();
-      callback();
-    }, 1500);
+  const fetchSales = async () => {
+    const data = await getSalesReport(filterDesde, filterHasta);
+    setSalesReport(data);
   };
 
-  const generateReport = () =>
-    showLoading("Generando reporte...", () =>
-      showSuccess("Reporte generado exitosamente 🚀")
-    );
+  useEffect(() => {
+    fetchSales();
+  }, []);
 
-  const downloadReport = () =>
-    showLoading("Descargando reporte...", () =>
-      showInfo("Descarga completada 💾")
-    );
+const totalVentas = salesReport?.totalVentas ?? 0;
+const cantidadVentas = salesReport?.cantidadVentas ?? 0;
+const ticketPromedio = cantidadVentas > 0 ? (totalVentas / cantidadVentas).toFixed(2) : 0;
 
-  const emailReport = () =>
-    showLoading("Enviando por email...", () =>
-      showSuccess("Reporte enviado 📧")
-    );
+const [form, setForm] = useState({
+    descripcion: "",
+    fecha: "",
+    categoria: "",
+});
 
-  const filteredReports = predefinedReports.filter(
-    (report) => reportType === "all" || report.type === reportType
-  );
-
-  const getReportIcon = (type: string) => {
-    const iconProps = "w-5 h-5";
-    switch (type) {
-      case "sales":
-        return <TrendingUp className={`${iconProps} text-green-500`} />;
-      case "inventory":
-        return <Package className={`${iconProps} text-blue-500`} />;
-      case "financial":
-        return <DollarSign className={`${iconProps} text-yellow-500`} />;
-      case "customer":
-        return <Users className={`${iconProps} text-purple-500`} />;
-      default:
-        return <FileText className={`${iconProps} text-gray-500`} />;
-    }
+  const validateReport = (data: any) => {
+    if (!data.descripcion) return "La descripción es obligatoria";
+    if (!data.fecha) return "La fecha es obligatoria";
+    if (!data.categoria) return "La categoría es obligatoria";
+    return null;
   };
+
+  useEffect(() => {
+  listReports().then(setReportes);
+  }, []);
+
+  const handleCreate = async () => {
+    const error = validateReport(form);
+    if (error) {
+      Swal.fire("Error", error, "error");
+      return;
+  }
+
+  await createReport({
+      descripcion: form.descripcion,
+      fecha: new Date(form.fecha),
+      categoria: form.categoria,
+    });
+
+    Swal.fire("Éxito", "Reporte creado", "success");
+    listReports().then(setReportes);
+  };
+
+  const handleDelete = async (id: string) => {
+    await deleteReport(id);
+    Swal.fire("Eliminado", "Reporte borrado correctamente", "success");
+    listReports().then(setReportes);
+  };
+
 
   return (
     <div className="p-8 bg-gray-100 min-h-screen flex flex-col gap-9">
@@ -194,10 +126,75 @@ export function ReportsModule() {
         </div>
       </div>
 
+      <div className="bg-white p-4 rounded-lg shadow mb-6">
+        <h3 className="text-lg font-bold mb-3">Crear Reporte</h3>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+          <input
+            type="text"
+            placeholder="Descripción"
+            className="border p-2 rounded"
+            value={form.descripcion}
+            onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
+          />
+
+          <input
+            type="date"
+            className="border p-2 rounded"
+            value={form.fecha}
+            onChange={(e) => setForm({ ...form, fecha: e.target.value })}
+          />
+
+          <select
+            className="border p-2 rounded"
+            value={form.categoria}
+            onChange={(e) => setForm({ ...form, categoria: e.target.value })}
+          >
+            <option value="">Categoría</option>
+            <option value="ventas">Ventas</option>
+            <option value="gastos">Gastos</option>
+            <option value="inventario">Inventario</option>
+          </select>
+        </div>
+
+        <button
+          onClick={handleCreate}
+          className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+        >
+          Crear Reporte
+        </button>
+      </div>
+
+      <div className="bg-white p-4 rounded-lg shadow">
+          <h3 className="text-lg font-bold mb-3">Reportes Generados</h3>
+
+          {reportes.map((r) => (
+            <div key={r._id} className="border p-3 rounded mb-2 flex justify-between">
+              <div>
+                <p className="font-semibold">{r.descripcion}</p>
+                <p className="text-sm text-gray-600">
+                  {new Date(r.fecha).toLocaleDateString("es-ES")}
+                </p>
+                <p className="text-xs text-gray-500">Categoría: {r.categoria}</p>
+              </div>
+
+              <button
+                onClick={() => handleDelete(r._id)}
+                className="text-red-600 hover:text-red-800"
+              >
+                Eliminar
+              </button>
+            </div>
+          ))}
+        </div>
+
+
+
       {/* Tabs */}
       <div>
-        <div className="grid grid-cols-3 border-b">
-          {["dashboard", "reports", "custom"].map((tab) => (
+        <div className="grid grid-cols-1 border-b">
+          {["dashboard"].map((tab) => (
             <button
               key={tab}
               className={`py-2 text-center font-semibold ${
@@ -209,98 +206,159 @@ export function ReportsModule() {
             >
               {tab === "dashboard"
                 ? "Dashboard Analítico"
-                : tab === "reports"
-                ? "Reportes Predefinidos"
-                : "Reportes Personalizados"}
+                : tab === "reports"}
             </button>
           ))}
         </div>
 
-        {activeTab === "reports" && (
-          <div className="mt-6 space-y-6">
-            {/* Filtro */}
-            <div className="flex items-center gap-3">
-              <Filter className="w-5 h-5 text-green-600" />
-              <select
-                value={reportType}
-                onChange={(e) => setReportType(e.target.value)}
-                className="border rounded-md px-3 py-2"
-              >
-                <option value="all">Todos los reportes</option>
-                <option value="sales">Ventas</option>
-                <option value="inventory">Inventario</option>
-                <option value="financial">Financiero</option>
-                <option value="customer">Clientes</option>
-              </select>
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-2 w-4 h-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Buscar reportes..."
-                  className="border rounded-md pl-10 pr-3 py-2 w-full"
-                />
-              </div>
-            </div>
 
-            {/* Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {filteredReports.map((report) => (
-                <div
-                  key={report.id}
-                  className="border rounded-lg p-4 hover:border-green-500 transition"
-                >
-                  <div className="flex justify-between">
-                    <div className="flex items-center gap-3">
-                      {getReportIcon(report.type)}
-                      <div>
-                        <h4 className="font-semibold">{report.name}</h4>
-                        <p className="text-sm text-gray-600">
-                          {report.description}
-                        </p>
-                      </div>
-                    </div>
-                    <span className="border rounded-full px-3 py-1 text-xs text-gray-600 capitalize">
-                      {report.type}
-                    </span>
-                  </div>
+      
+      {/* DASHBOARD ANALÍTICO */}
+      {activeTab === "dashboard" && (
+  <div className="space-y-6 bg-white p-4 rounded-lg shadow">
 
-                  <div className="mt-3 text-sm text-gray-700 space-y-1">
-                    <p>
-                      Última generación:{" "}
-                      {new Date(report.lastGenerated).toLocaleDateString("es-ES")}
-                    </p>
-                    <p>Tamaño: {report.size}</p>
-                    <p>Formato: {report.format.toUpperCase()}</p>
-                  </div>
+    {/* FILTROS */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div>
+        <label className="text-sm font-medium">Fecha desde</label>
+        <input
+          type="date"
+          className="border rounded p-2 w-full"
+          value={filterDesde}
+          onChange={(e) => setFilterDesde(e.target.value)}
+        />
+      </div>
 
-                  <div className="flex gap-2 mt-3">
-                    <button
-                      onClick={generateReport}
-                      className="flex-1 bg-green-600 text-white py-1 rounded-md flex items-center justify-center hover:bg-green-700"
-                    >
-                      <FileText className="w-4 h-4 mr-1" /> Generar
-                    </button>
-                    <button
-                      onClick={downloadReport}
-                      className="border rounded-md p-2 hover:bg-gray-100"
-                    >
-                      <Download className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={emailReport}
-                      className="border rounded-md p-2 hover:bg-gray-100"
-                    >
-                      <Mail className="w-4 h-4" />
-                    </button>
-                    <button className="border rounded-md p-2 hover:bg-gray-100">
-                      <Eye className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+      <div>
+        <label className="text-sm font-medium">Fecha hasta</label>
+        <input
+          type="date"
+          className="border rounded p-2 w-full"
+          value={filterHasta}
+          onChange={(e) => setFilterHasta(e.target.value)}
+        />
+      </div>
+
+      <button
+        onClick={fetchSales}
+        className="bg-green-600 text-white rounded px-4 py-2 mt-6 hover:bg-green-700"
+      >
+        Aplicar Filtros
+      </button>
+    </div>
+
+
+  <div id="pdfArea"  className="w-full mx-auto bg-white p-10 rounded-lg shadow ">
+
+    {/* KPIs */}
+
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+      <Card>
+        <CardContent className="p-6">
+          <p className="text-sm text-gray-600">Total Vendido</p>
+          <p className="text-3xl font-bold text-green-600">
+            ${totalVentas.toLocaleString() || 0 }
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="p-6">
+          <p className="text-sm text-gray-600">Cantidad de Ventas</p>
+          <p className="text-3xl font-bold">{cantidadVentas}</p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="p-6">
+          <p className="text-sm text-gray-600">Ticket Promedio</p>
+          <p className="text-3xl font-bold text-blue-600">
+            ${(totalVentas / cantidadVentas).toFixed(2)}
+          </p>
+        </CardContent>
+      </Card>
+
+    </div>
+
+    {/* GRÁFICOS */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      {/* BARRAS */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Ventas por Día</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={salesReport?.grafico ?? []}>
+                <XAxis dataKey={(e) => new Date(e.fecha).toLocaleDateString("es-ES")} />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="total" fill="#10b981" />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
-        )}
+        </CardContent>
+      </Card>
+
+      {/* TORTA O BARRAS POR CATEGORÍA */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Ventas por Categoría</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={salesReport?.categorias ?? []}>
+                <XAxis dataKey="categoria" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="total" fill="#3b82f6" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
+    </div>
+
+    {/* TABLA DE VENTAS */}
+    <Card>
+      <CardHeader>
+        <CardTitle>Listado de Ventas</CardTitle>
+      </CardHeader>
+
+      <CardContent className="overflow-y-auto max-h-80">
+        {(salesReport?.detalles ?? []).map((v: VentaDetalle, i: number) => (
+          <div key={i} className="border rounded p-3 mb-2">
+            <div className="flex justify-between">
+              <p>{v.descripcion}</p>
+              <span className="font-bold text-green-600">
+                ${v.total.toLocaleString()}
+              </span>
+            </div>
+            <p className="text-xs text-gray-600">
+              {new Date(v.fecha).toLocaleDateString("es-ES")}
+            </p>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+
+    {/* BOTÓN PDF */}
+    <button
+      onClick={exportarPDF}
+      className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+    >
+      Exportar PDF
+    </button>
+
+        
+           </div>
+        </div>
+      )}
       </div>
     </div>
   );

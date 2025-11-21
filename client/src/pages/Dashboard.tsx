@@ -11,6 +11,8 @@ import { useEffect, useState } from 'react';
 import { listProducts } from '../services/productsService';
 import SalesCategory from '../components/ui/SalesSummary/SalesCategory';
 import ManagerActions from '../components/ui/ManagerSummary/ManagerActions';
+import { listReports } from '../services/reportService';
+import { ExpensesSummaryCard } from '../components/ui/ExpensesSummary/ExpensesSummaryCard';
 
 
 /*Datos para elaborar el grafico temporal*/
@@ -68,9 +70,16 @@ export default function Dashboard() {
   // State para ventas y productos
   const [sales, setSales] = useState<Sale[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [expenses, setExpenses] = useState<any[]>([]);
 
   useEffect(() => {
     // Simulamos la obtención de datos de ventas desde una API o base de datos
+
+    const fetchExpenses = async () => {
+        const expensesData = await listReports()
+        setExpenses(expensesData)
+    }
+
     const fetchSales = async () => {
         const salesData = await listSales();
         setSales(salesData);
@@ -79,6 +88,7 @@ export default function Dashboard() {
         const productsData = await listProducts()
         setProducts(productsData);
     }
+    fetchExpenses();
     fetchSales();
     fetchProducts();
   }, []);
@@ -102,11 +112,7 @@ export default function Dashboard() {
                 <ProductsSummaryCard products={products} />
 
                 {/* Gastos del día */}
-                <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-6">
-                    <h1 className="text-lg font-semibold text-gray-700 mb-6">Gastos del día 📉</h1>
-                    <p className="text-2xl font-bold text-red-600">$300.000</p>
-                    <p className="text-sm text-gray-500 mt-1">Gastos registrados</p>
-                </div>
+                <ExpensesSummaryCard expenses={expenses} />
             </div>
             <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
                 <div className="lg:col-span-2 space-y-6 ">
