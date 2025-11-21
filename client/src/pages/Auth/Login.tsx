@@ -115,7 +115,7 @@ export default function Login() {
         {/* Info demo */}
         <div className="mt-6 text-center text-sm text-gray-500 space-y-1">
           <p>Usuarios de prueba:</p>
-          <p><strong>gerente</strong> / <strong>encargado</strong></p>
+          <p><strong>gerente@gmail.com</strong> / <strong>encargado@gmail.com</strong></p>
           <p>Contraseña: <strong>123456</strong></p>
         </div>
       </div>
