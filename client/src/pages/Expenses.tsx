@@ -120,7 +120,6 @@ export default function ExpensesModule() {
 
   return (
     <div className="p-8 bg-gray-100 min-h-screen flex flex-col gap-9">
-
       {/* HEADER */}
       <div className="flex justify-between items-center">
         <div>
@@ -138,8 +137,7 @@ export default function ExpensesModule() {
       {/* MODAL */}
       {isDialogOpen && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl w-full max-w-lg shadow-xl">
-
+          <div className="bg-white p-6 rounded-xl w-full max-w-lg shadow-xl"> 
             <h2 className="text-2xl font-bold text-gray-900">Registrar Nuevo Gasto</h2>
             <p className="text-gray-600 mb-6">Complete los campos para registrar un nuevo gasto.</p>
 
@@ -364,14 +362,12 @@ export default function ExpensesModule() {
                   {new Date(exp.fecha).toLocaleDateString("es-ES")}
                 </p>
               </div>
-
               <div className="text-right">
                 <p className="font-bold text-red-600">
                   ${exp.monto.toLocaleString()}
                 </p>
               </div>
             </div>
-
             <p className="text-xs text-gray-500 mt-2">
               Presupuesto: ${exp.presupuestoDisponible.toLocaleString()}
             </p>
@@ -380,9 +376,7 @@ export default function ExpensesModule() {
       </CardContent>
     </Card>
   </div>
-
 </div>
-
     </div>
   );
 }
