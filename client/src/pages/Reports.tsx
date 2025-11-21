@@ -59,7 +59,6 @@ export function ReportsModule() {
 
 const totalVentas = salesReport?.totalVentas ?? 0;
 const cantidadVentas = salesReport?.cantidadVentas ?? 0;
-const ticketPromedio = cantidadVentas > 0 ? (totalVentas / cantidadVentas).toFixed(2) : 0;
 
 const [form, setForm] = useState({
     descripcion: "",
