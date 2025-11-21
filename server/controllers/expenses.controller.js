@@ -1,4 +1,4 @@
-import Expense from "../models/Expense.model.js";
+import Expense from "../models/expense.model.js";
 
 export async function listExpenses(req, res) {
   const { desde, hasta } = req.query;
