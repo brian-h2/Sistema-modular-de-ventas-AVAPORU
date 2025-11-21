@@ -1,4 +1,4 @@
-import Product from "../models/Product.model.js";
+import Product from "../models/product.model.js";
 
 export async function listProducts(req, res) {
   const productos = await Product.find().sort({ nombre: 1 });

@@ -209,6 +209,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
             <div>
               <h3 className="font-medium text-gray-700 mb-2">Productos / Items</h3>
+              <p  className="font-light text-gray-500 mb-4">Se debe colocar el nombre de un producto que este presente en el listado de arriba.</p>
               {form.items.map((item, index) => (
                 <div key={index} className="grid grid-cols-12 gap-2 mb-2">
                   <input

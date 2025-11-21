@@ -3,13 +3,11 @@ import axios from "axios";
 
 //Definimos la URL base de la API
 const API = axios.create({
-    baseURL: import.meta.env.VITE_API_Local || "http://localhost:4000",
-    // baseURL: "https://avaporu.onrender.com",
+    baseURL: import.meta.env.VITE_API_URL,
     headers: {
         "Content-Type": "application/json",
     },
-})
-
+});
 //Interceptor para agregar el token a las solicitudes
 API.interceptors.request.use((config) => {
     const token = localStorage.getItem("token");

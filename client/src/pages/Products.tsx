@@ -525,7 +525,7 @@ export default function Stock() {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
               <h2 className="text-xl font-semibold text-gray-900">
@@ -547,6 +547,8 @@ export default function Stock() {
                   </label>
                   <input
                     type="text"
+                    maxLength={5}
+                    minLength={1}
                     required
                     value={form.sku}
                     onChange={(e) =>
@@ -562,6 +564,8 @@ export default function Stock() {
                   </label>
                   <input
                     type="text"
+                    maxLength={15}
+                    minLength={1}
                     required
                     value={form.categoria}
                     onChange={(e) =>
@@ -578,6 +582,8 @@ export default function Stock() {
                 </label>
                 <input
                   type="text"
+                  maxLength={15}
+                  minLength={1}
                   required
                   value={form.nombre}
                   onChange={(e) => setForm({ ...form, nombre: e.target.value })}
@@ -591,6 +597,8 @@ export default function Stock() {
                 </label>
                 <input
                   type="text"
+                  maxLength={15}
+                  minLength={1}
                   value={form.marca}
                   onChange={(e) => setForm({ ...form, marca: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
@@ -606,6 +614,7 @@ export default function Stock() {
                     type="number"
                     required
                     min="0"
+                    max="100"
                     value={form.stockDisponible}
                     onChange={(e) =>
                       setForm({
@@ -625,6 +634,7 @@ export default function Stock() {
                     type="number"
                     required
                     min="0"
+                    max="10"
                     value={form.stockMinimo}
                     onChange={(e) =>
                       setForm({
@@ -644,6 +654,7 @@ export default function Stock() {
                     type="number"
                     required
                     min="0"
+                    max="1000000"
                     step="0.01"
                     value={form.precio}
                     onChange={(e) =>

@@ -1,14 +1,27 @@
 import { useState,useEffect } from "react";
 import { Card, CardContent, CardTitle } from "../components/ui/Card";
 import {
-  Plus, Users, Shield, CheckCircle, Key, Edit3, Calendar, Phone
+  Plus, Users, Shield, CheckCircle, Key
 } from "lucide-react";
-import { listUsers } from "../services/userService";
+import { listUsers, registerUserAdmin } from "../services/userService";
+import Swal from "sweetalert2";
 
 
 export default function UserManagement() {
   const [userFilter, setUserFilter] = useState("all");
   const [systemUsers, setSystemUsers] = useState<SystemUsers[]>([]);
+
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+
+  const [formData, setFormData] = useState({
+    nombre: "",
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    role: "Encargado"
+  });
+
 
   interface SystemUsers {
     id: string;
@@ -24,12 +37,14 @@ export default function UserManagement() {
   const user = localStorage.getItem("user");
   const userData = user ? JSON.parse(user) : null;
 
-  useEffect(() => {
-    const fetchUsers = async () => {
+   const fetchUsers = async () => {
       const systemUsers = await listUsers(userData?.token);
       setSystemUsers(systemUsers);
     };
 
+  useEffect(() => {
+   
+ 
     fetchUsers();
   }, []); 
   
@@ -45,10 +60,137 @@ export default function UserManagement() {
           </p>
         </div>
 
-        <button className="flex items-center bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">
+        <button
+          onClick={() => setIsCreateOpen(true)}
+          className="flex items-center bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+        >
           <Plus className="w-4 h-4 mr-2" /> Nuevo Usuario
         </button>
       </div>
+
+      {isCreateOpen && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl w-full max-w-lg shadow-xl">
+
+            <h2 className="text-2xl font-bold text-gray-900">Crear Nuevo Usuario</h2>
+            <p className="text-gray-600 mb-6">Complete los campos para crear un nuevo usuario del sistema.</p>
+
+            <div className="grid grid-cols-2 gap-4">
+
+              {/* USERNAME */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Usuario *</label>
+                <input
+                  type="text"
+                  value={formData.username}
+                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                  className="w-full border rounded-lg p-2 bg-gray-50"
+                  placeholder="Usuario"
+                />
+              </div>
+
+              {/* EMAIL */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full border rounded-lg p-2 bg-gray-50"
+                  placeholder="email@empresa.com"
+                />
+              </div>
+
+              {/* PASSWORD */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña *</label>
+                <input
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className="w-full border rounded-lg p-2 bg-gray-50"
+                  placeholder="•••••••"
+                />
+              </div>
+
+              {/* CONFIRM PASSWORD */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Confirmar Contraseña *</label>
+                <input
+                  type="password"
+                  value={formData.confirmPassword}
+                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  className="w-full border rounded-lg p-2 bg-gray-50"
+                  placeholder="•••••••"
+                />
+              </div>
+
+              {/* ROLE */}
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Rol *</label>
+                <select
+                  value={formData.role}
+                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                  className="w-full border rounded-lg p-2 bg-gray-50"
+                >
+                  <option value="Encargado">Encargado</option>
+                  <option value="Gerente">Gerente</option>
+                  <option value="Vendedor">Vendedor</option>
+                </select>
+              </div>
+
+            </div>
+
+            {/* BOTONES */}
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setIsCreateOpen(false)}
+                className="flex-1 border border-gray-300 rounded-lg p-2 hover:bg-gray-100"
+              >
+                Cancelar
+              </button>
+
+              <button
+                onClick={async () => {
+                  if (formData.password !== formData.confirmPassword) {
+                    alert("Las contraseñas no coinciden");
+                    return;
+                  }
+
+                  try {
+                    await registerUserAdmin({
+                      username: formData.username,
+                      email: formData.email,
+                      password: formData.password,
+                      role: formData.role
+                    });
+                    Swal.fire({
+                            icon: 'success',
+                            title: 'Usuario creado', 
+                            text: 'El usuario ha sido creado exitosamente.'
+                          });
+                    fetchUsers();
+                    setIsCreateOpen(false);
+
+                  } catch (err) {
+                    console.error(err);
+                    Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Error al crear el usuario'
+                          });
+                  }
+                }}
+                className="flex-1 bg-green-500 hover:bg-green-600 text-white p-2 rounded-lg"
+              >
+                Crear Usuario
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -125,21 +267,6 @@ export default function UserManagement() {
                         @{u.username} · {u.email}
                       </p>
 
-                      {/* Teléfono */}
-                      <p className="text-sm text-gray-600 flex items-center gap-1 mt-1">
-                        <Phone className="w-3 h-3" />
-                        123-456-7890
-                      </p>
-
-                      {/* Último acceso + MFA */}
-                      <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        Último acceso:{" "}
-                        {new Date(u.lastLogin).toLocaleDateString("es-ES")}
-                        <span className="ml-2 px-2 py-0.5 text-green-700 bg-green-100 rounded-full text-[10px]">
-                          MFA: Habilitado
-                        </span>
-                      </p>
                     </div>
                   </div>
 
@@ -158,9 +285,7 @@ export default function UserManagement() {
 
                     {/* Botones */}
                     <div className="flex gap-2 mt-1">
-                      <button className="border p-2 rounded hover:bg-gray-100">
-                        <Edit3 className="w-4 h-4" />
-                      </button>
+    
                       <button className="border p-2 rounded hover:bg-gray-100">
                         <Key className="w-4 h-4" />
                       </button>
