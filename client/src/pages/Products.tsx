@@ -16,6 +16,9 @@ import {
   updateProduct,
 } from "../services/productsService";
 import Swal from "sweetalert2";
+import { motion, AnimatePresence } from "framer-motion";
+import type { Variants } from "framer-motion";
+import { Package } from "lucide-react";
 
 interface Product {
   _id: string;
@@ -168,6 +171,34 @@ export default function Stock() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!form.sku || !form.nombre || !form.categoria || form.precio === undefined || form.stockDisponible === undefined || form.stockMinimo === undefined) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Campos incompletos',
+        text: 'Por favor, completa todos los campos obligatorios.'
+      });
+      return;
+    }
+
+    if (form.precio <= 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Precio inválido',
+        text: 'El precio del producto debe ser mayor a 0.'
+      });
+      return;
+    }
+
+    if (form.stockDisponible < 0 || form.stockMinimo < 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Stock inválido',
+        text: 'Los valores de stock no pueden ser negativos.'
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -213,64 +244,115 @@ export default function Stock() {
     }
   };
 
+  // Animation variants
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.08 }
+    }
+  };
+
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  };
+
+  const rowVariants: Variants = {
+    hidden: { opacity: 0, x: -10 },
+    show: { opacity: 1, x: 0 }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 sm:p-8 font-sans">
       {/* Header */}
-      <div className="flex justify-between items-start mb-6">
+      <motion.div 
+        className="flex justify-between items-start mb-6"
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Gestión de Stock</h1>
-          <p className="text-gray-600 mt-1">
+          <div className="flex items-center gap-3 mb-1">
+            <div className="p-2 bg-teal-100 text-teal-600 rounded-xl shadow-sm">
+              <Package className="w-6 h-6" />
+            </div>
+            <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Gestión de Stock</h1>
+          </div>
+          <p className="text-lg text-slate-500 font-medium mt-2">
             Control de inventario con alertas automáticas
           </p>
         </div>
-        <button
+        <motion.button
           onClick={() => handleOpenModal()}
-          className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 font-medium"
+          className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 font-semibold shadow-sm transition-colors"
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
         >
           <PlusIcon className="h-5 w-5" />
           Nuevo Producto
-        </button>
-      </div>
+        </motion.button>
+      </motion.div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow p-4 flex items-center gap-3">
-          <CubeIcon className="h-8 w-8 text-teal-600" />
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6"
+      >
+        <motion.div variants={itemVariants} className="bg-white rounded-xl shadow-sm border border-slate-100 p-5 flex items-center gap-3 transition-all hover:-translate-y-1 hover:shadow-md">
+          <div className="p-2 bg-teal-100 rounded-lg">
+            <CubeIcon className="h-7 w-7 text-teal-600" />
+          </div>
           <div>
-            <p className="text-gray-500 text-sm">Total Productos</p>
+            <p className="text-sm text-slate-500 font-medium">Total Productos</p>
             <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white rounded-lg shadow p-4 flex items-center gap-3">
-          <CheckCircleIcon className="h-8 w-8 text-green-600" />
+        <motion.div variants={itemVariants} className="bg-white rounded-xl shadow-sm border border-slate-100 p-5 flex items-center gap-3 transition-all hover:-translate-y-1 hover:shadow-md">
+          <div className="p-2 bg-green-100 rounded-lg">
+            <CheckCircleIcon className="h-7 w-7 text-green-600" />
+          </div>
           <div>
-            <p className="text-gray-500 text-sm">Stock Normal</p>
+            <p className="text-sm text-slate-500 font-medium">Stock Normal</p>
             <p className="text-2xl font-bold text-green-600">{stats.normal}</p>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white rounded-lg shadow p-4 flex items-center gap-3">
-          <ExclamationTriangleIcon className="h-8 w-8 text-yellow-600" />
+        <motion.div variants={itemVariants} className="bg-white rounded-xl shadow-sm border border-slate-100 p-5 flex items-center gap-3 transition-all hover:-translate-y-1 hover:shadow-md">
+          <div className="p-2 bg-yellow-100 rounded-lg">
+            <ExclamationTriangleIcon className="h-7 w-7 text-yellow-600" />
+          </div>
           <div>
-            <p className="text-gray-500 text-sm">Stock Bajo</p>
+            <p className="text-sm text-slate-500 font-medium">Stock Bajo</p>
             <p className="text-2xl font-bold text-yellow-600">{stats.bajo}</p>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white rounded-lg shadow p-4 flex items-center gap-3">
-          <XCircleIcon className="h-8 w-8 text-red-600" />
+        <motion.div variants={itemVariants} className="bg-white rounded-xl shadow-sm border border-slate-100 p-5 flex items-center gap-3 transition-all hover:-translate-y-1 hover:shadow-md">
+          <div className="p-2 bg-red-100 rounded-lg">
+            <XCircleIcon className="h-7 w-7 text-red-600" />
+          </div>
           <div>
-            <p className="text-gray-500 text-sm">Crítico/Sin Stock</p>
+            <p className="text-sm text-slate-500 font-medium">Crítico/Sin Stock</p>
             <p className="text-2xl font-bold text-red-600">{stats.sinStock}</p>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-4 mb-6">
+      <motion.div 
+        className="bg-white rounded-xl shadow-sm border border-slate-100 p-5 mb-6"
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.4 }}
+      >
         <div className="flex items-center gap-2 mb-4">
-          <FunnelIcon className="h-5 w-5 text-teal-600" />
+          <div className="p-1.5 bg-teal-100 rounded-lg">
+            <FunnelIcon className="h-5 w-5 text-teal-600" />
+          </div>
           <h2 className="font-semibold text-gray-900">Filtros y Búsqueda</h2>
         </div>
 
@@ -282,14 +364,14 @@ export default function Stock() {
               placeholder="Buscar por código, nombre o marca..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-slate-50/50 transition-colors"
             />
           </div>
 
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            className="px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-slate-50/50 transition-colors"
           >
             {categories.map((cat) => (
               <option key={cat} value={cat}>
@@ -301,7 +383,7 @@ export default function Stock() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            className="px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-slate-50/50 transition-colors"
           >
             <option>Todos los estados</option>
             <option>Normal</option>
@@ -309,69 +391,82 @@ export default function Stock() {
             <option>Sin Stock</option>
           </select>
         </div>
-      </div>
+      </motion.div>
 
       {/* Products Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
+      <motion.div 
+        className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden"
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4, duration: 0.4 }}
+      >
+        <div className="px-6 py-4 border-b border-slate-200 bg-slate-50/50">
           <h2 className="font-semibold text-gray-900">Inventario Actual</h2>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                   Estado
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                   Código
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                   Producto
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                   Categoría
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                   Stock Actual
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                   Stock Mín.
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                   Precio
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                   Acciones
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white divide-y divide-slate-100">
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="px-6 py-4 text-center text-gray-500">
-                    Cargando productos...
+                  <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-5 h-5 border-2 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
+                      Cargando productos...
+                    </div>
                   </td>
                 </tr>
               ) : filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
                     No se encontraron productos
                   </td>
                 </tr>
               ) : (
-                filteredProducts.map((product) => {
+                filteredProducts.map((product, i) => {
                   const status = getStockStatus(product);
                   return (
-                    <tr key={product._id} className="hover:bg-gray-50">
+                    <motion.tr 
+                      key={product._id} 
+                      className="hover:bg-slate-50/70 transition-colors"
+                      variants={rowVariants}
+                      initial="hidden"
+                      animate="show"
+                      transition={{ delay: i * 0.03 }}
+                    >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           {getStatusIcon(status)}
                           <span
-                            className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
-                              status
-                            )}`}
+                            className={'px-2 py-1 text-xs font-medium rounded-full ' + getStatusColor(status)}
                           >
                             {status}
                           </span>
@@ -397,13 +492,13 @@ export default function Stock() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
-                          className={`text-sm font-semibold ${
+                          className={'text-sm font-semibold ' + (
                             product.stockDisponible === 0
                               ? "text-red-600"
                               : product.stockDisponible <= product.stockMinimo
                               ? "text-yellow-600"
                               : "text-green-600"
-                          }`}
+                          )}
                         >
                           {product.stockDisponible}
                         </span>
@@ -416,296 +511,227 @@ export default function Stock() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <div className="flex items-center gap-2">
-                          <button
+                          <motion.button
                             onClick={() => handleOpenModal(product)}
-                            className="text-gray-600 hover:text-gray-900"
+                            className="text-gray-600 hover:text-gray-900 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
                           >
                             <PencilIcon className="h-5 w-5" />
-                          </button>
-                          {/* <button className="text-emerald-600 hover:text-emerald-700 bg-emerald-50 rounded p-1">
-                            <PlusIcon className="h-4 w-4" />
-                          </button>
-                          <button className="text-red-600 hover:text-red-700 bg-red-50 rounded p-1">
-                            <TrashIcon className="h-4 w-4" />
-                          </button> */}
+                          </motion.button>
                         </div>
                       </td>
-                    </tr>
+                    </motion.tr>
                   );
                 })
               )}
             </tbody>
           </table>
         </div>
-      </div>
-
-      {/* Bottom Cards */}
-      {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="bg-blue-100 p-2 rounded">
-              <svg
-                className="h-6 w-6 text-blue-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900">Reporte de Stock</h3>
-              <p className="text-sm text-gray-500">Generar reporte completo</p>
-            </div>
-          </div>
-          <button className="w-full border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50">
-            Generar Reporte
-          </button>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="bg-green-100 p-2 rounded">
-              <svg
-                className="h-6 w-6 text-green-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                />
-              </svg>
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900">Productos Top</h3>
-              <p className="text-sm text-gray-500">Más vendidos del mes</p>
-            </div>
-          </div>
-          <button className="w-full border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50">
-            Ver Análisis
-          </button>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="bg-red-100 p-2 rounded">
-              <svg
-                className="h-6 w-6 text-red-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"
-                />
-              </svg>
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900">Stock Crítico</h3>
-              <p className="text-sm text-gray-500">Órdenes de reposición</p>
-            </div>
-          </div>
-          <button className="w-full border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50">
-            Generar Órdenes
-          </button>
-        </div>
-      </div> */}
+      </motion.div>
 
       {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-gray-900">
-                {editingProduct ? "Editar Producto" : "Nuevo Producto"}
-              </h2>
-              <button
-                onClick={handleCloseModal}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <XCircleIcon className="h-6 w-6" />
-              </button>
-            </div>
+      <AnimatePresence>
+        {showModal && (
+          <motion.div 
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div 
+              className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-slate-100"
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            >
+              <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  {editingProduct ? "Editar Producto" : "Nuevo Producto"}
+                </h2>
+                <motion.button
+                  onClick={handleCloseModal}
+                  className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-slate-100 transition-colors"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <XCircleIcon className="h-6 w-6" />
+                </motion.button>
+              </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Código
-                  </label>
-                  <input
-                    type="text"
-                    maxLength={5}
-                    minLength={1}
-                    required
-                    value={form.sku}
-                    onChange={(e) =>
-                      setForm({ ...form, sku: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                  />
+              <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Código
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={5}
+                      minLength={1}
+                      required
+                      value={form.sku}
+                      onChange={(e) =>
+                        setForm({ ...form, sku: e.target.value })
+                      }
+                      className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-slate-50/50 transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Categoría
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={15}
+                      minLength={1}
+                      required
+                      value={form.categoria}
+                      onChange={(e) =>
+                        setForm({ ...form, categoria: e.target.value })
+                      }
+                      className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-slate-50/50 transition-colors"
+                    />
+                  </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Categoría
+                    Nombre del Producto
                   </label>
                   <input
                     type="text"
                     maxLength={15}
                     minLength={1}
                     required
-                    value={form.categoria}
-                    onChange={(e) =>
-                      setForm({ ...form, categoria: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nombre del Producto
-                </label>
-                <input
-                  type="text"
-                  maxLength={15}
-                  minLength={1}
-                  required
-                  value={form.nombre}
-                  onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Marca
-                </label>
-                <input
-                  type="text"
-                  maxLength={15}
-                  minLength={1}
-                  value={form.marca}
-                  onChange={(e) => setForm({ ...form, marca: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                />
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Stock Disponible
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min="0"
-                    max="100"
-                    value={form.stockDisponible}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        stockDisponible: parseInt(e.target.value) || 0,
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    value={form.nombre}
+                    onChange={(e) => setForm({ ...form, nombre: e.target.value })}
+                    className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-slate-50/50 transition-colors"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Stock Mínimo
+                    Marca
                   </label>
                   <input
-                    type="number"
-                    required
-                    min="0"
-                    max="10"
-                    value={form.stockMinimo}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        stockMinimo: parseInt(e.target.value) || 0,
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    type="text"
+                    maxLength={15}
+                    minLength={1}
+                    value={form.marca}
+                    onChange={(e) => setForm({ ...form, marca: e.target.value })}
+                    className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-slate-50/50 transition-colors"
                   />
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Stock Disponible
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      min="0"
+                      max="100"
+                      value={form.stockDisponible}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          stockDisponible: parseInt(e.target.value) || 0,
+                        })
+                      }
+                      className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-slate-50/50 transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Stock Mínimo
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      min="0"
+                      max="10"
+                      value={form.stockMinimo}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          stockMinimo: parseInt(e.target.value) || 0,
+                        })
+                      }
+                      className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-slate-50/50 transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Precio
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      min="0"
+                      max="1000000"
+                      step="0.01"
+                      value={form.precio}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          precio: parseFloat(e.target.value) || 0,
+                        })
+                      }
+                      className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-slate-50/50 transition-colors"
+                    />
+                  </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Precio
+                    URL de Imagen (opcional)
                   </label>
                   <input
-                    type="number"
-                    required
-                    min="0"
-                    max="1000000"
-                    step="0.01"
-                    value={form.precio}
+                    type="url"
+                    value={form.imageUrl}
                     onChange={(e) =>
-                      setForm({
-                        ...form,
-                        precio: parseFloat(e.target.value) || 0,
-                      })
+                      setForm({ ...form, imageUrl: e.target.value })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-slate-50/50 transition-colors"
                   />
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  URL de Imagen (opcional)
-                </label>
-                <input
-                  type="url"
-                  value={form.imageUrl}
-                  onChange={(e) =>
-                    setForm({ ...form, imageUrl: e.target.value })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                />
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1 px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 disabled:bg-gray-400"
-                >
-                  {loading
-                    ? "Guardando..."
-                    : editingProduct
-                    ? "Actualizar"
-                    : "Crear Producto"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+                <div className="flex gap-3 pt-4">
+                  <motion.button
+                    type="button"
+                    onClick={handleCloseModal}
+                    className="flex-1 px-4 py-2.5 border border-slate-300 text-gray-700 rounded-xl hover:bg-slate-50 transition-colors font-medium"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    Cancelar
+                  </motion.button>
+                  <motion.button
+                    type="submit"
+                    disabled={loading}
+                    className="flex-1 px-4 py-2.5 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 disabled:bg-gray-400 transition-colors font-medium shadow-sm"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {loading
+                      ? "Guardando..."
+                      : editingProduct
+                      ? "Actualizar"
+                      : "Crear Producto"}
+                  </motion.button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

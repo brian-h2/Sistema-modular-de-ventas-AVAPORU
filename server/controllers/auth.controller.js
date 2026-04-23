@@ -62,3 +62,37 @@ export async function listUsers(req, res) {
   const users = await User.find();
   res.json(users);
 }
+
+export async function updateUser(req, res) {
+  try {
+    const { id } = req.params;
+    const { nombre, email, role, status, password } = req.body;
+    
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
+
+    if (nombre) user.nombre = nombre;
+    if (email) user.email = email;
+    if (role) user.role = role;
+    if (status) user.status = status;
+    
+    if (password) {
+      user.passwordHash = await bcrypt.hash(password, 10);
+    }
+
+    await user.save();
+    res.json(user);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+}
+
+export async function deleteUser(req, res) {
+  try {
+    const { id } = req.params;
+    await User.findByIdAndDelete(id);
+    res.json({ message: "Usuario eliminado" });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+}
