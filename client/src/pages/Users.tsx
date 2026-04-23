@@ -39,11 +39,10 @@ export default function UserManagement() {
     role: string;
   }
 
-  const user = localStorage.getItem("user");
-  const userData = user ? JSON.parse(user) : null;
+  const token = localStorage.getItem("token");
 
    const fetchUsers = async () => {
-      const systemUsers = await listUsers(userData?.token);
+      const systemUsers = await listUsers(token);
       setSystemUsers(systemUsers);
     };
 
@@ -56,7 +55,7 @@ export default function UserManagement() {
   const handleToggleStatus = async (user: any) => {
     const newStatus = user.status === "active" ? "inactive" : "active";
     try {
-      await updateUser(user._id || user.id, { status: newStatus }, userData?.token);
+      await updateUser(user._id || user.id, { status: newStatus }, token);
       Swal.fire({ icon: 'success', title: 'Estado actualizado', text: `Usuario ${newStatus === 'active' ? 'activado' : 'desactivado'}` });
       fetchUsers();
     } catch (error) {
@@ -78,7 +77,7 @@ export default function UserManagement() {
 
     if (result.isConfirmed) {
       try {
-        await deleteUser(userId, userData?.token);
+        await deleteUser(userId, token);
         Swal.fire('Eliminado', 'El usuario ha sido eliminado.', 'success');
         fetchUsers();
       } catch (error) {
@@ -248,7 +247,7 @@ export default function UserManagement() {
                         };
                         if (formData.password) updateData.password = formData.password;
                         
-                        await updateUser(selectedUserId, updateData, userData?.token);
+                        await updateUser(selectedUserId, updateData, token);
                         Swal.fire({ icon: 'success', title: 'Actualizado', text: 'Usuario actualizado correctamente' });
                       } else {
                         await registerUserAdmin({
@@ -256,7 +255,7 @@ export default function UserManagement() {
                           email: formData.email,
                           password: formData.password,
                           role: formData.role
-                        });
+                        }, token);
                         Swal.fire({
                                 icon: 'success',
                                 title: 'Usuario creado', 
@@ -445,7 +444,7 @@ export default function UserManagement() {
                           </motion.button>
                           <motion.button 
                             onClick={() => handleToggleStatus(u)}
-                            className={"border border-slate-200 p-2 rounded-lg hover:bg-slate-100 transition-colors " + (u.status === 'active' ? 'text-amber-600' : 'text-green-600')}
+                            className="border border-slate-200 p-2 rounded-lg hover:bg-slate-100 transition-colors text-slate-600"
                             title={u.status === 'active' ? 'Desactivar usuario' : 'Activar usuario'}
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
