@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardTitle } from "../components/ui/Card";
 import {
-  Plus, Users, Shield, CheckCircle, Key, UserCog, Edit, Trash2, UserX, UserCheck
+  Plus, Users, Shield, CheckCircle, UserCog, Edit, Trash2, UserX, UserCheck
 } from "lucide-react";
 import { listUsers, registerUserAdmin, updateUser, deleteUser } from "../services/userService";
 import Swal from "sweetalert2";
@@ -28,6 +28,7 @@ export default function UserManagement() {
 
 
   interface SystemUsers {
+    _id?: string;
     id: string;
     nombre: string;
     username: string;
@@ -51,20 +52,6 @@ export default function UserManagement() {
  
     fetchUsers();
   }, []); 
-
-  const handleOpenEdit = (user: any) => {
-    setFormData({
-      nombre: user.nombre,
-      username: user.username || user.nombre, // Fallback if username is missing
-      email: user.email,
-      password: "",
-      confirmPassword: "",
-      role: user.role
-    });
-    setSelectedUserId(u._id || u.id); // Check both common patterns
-    setIsEditing(true);
-    setIsCreateOpen(true);
-  };
 
   const handleToggleStatus = async (user: any) => {
     const newStatus = user.status === "active" ? "inactive" : "active";
