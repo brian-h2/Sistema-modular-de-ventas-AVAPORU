@@ -18,14 +18,14 @@ export default function ProductsSummaryCard({ products }: ProductsSummaryCardPro
 
     //Use memo permite memorizar valores calculados para optimizar el rendimiento
     const { productosCriticos,
-          } = useMemo(() => { 
+    } = useMemo(() => {
 
         const totalProductos = products.length;
         const productosCriticos = products.filter(p => p.stockDisponible < p.stockMinimo).length;
         const porcentajeCriticos = totalProductos > 0 ? (productosCriticos / totalProductos) * 100 : 0;
 
         return { totalProductos, productosCriticos, porcentajeCriticos };
-        }, [products]);
+    }, [products]);
 
     return (
         <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-6">
