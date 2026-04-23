@@ -5,8 +5,12 @@ export const registrerUser = async (userData: { username: string; email: string;
     return response.data;
 }
 
-export const registerUserAdmin = async (userData: { username: string; email: string; password: string, role: string }) => {
-    const response = await API.post("/auth/register", userData);
+export const registerUserAdmin = async (userData: { username: string; email: string; password: string, role: string }, token: string | null) => {
+    const response = await API.post("/auth/register", userData, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
     return response.data;
 }
 

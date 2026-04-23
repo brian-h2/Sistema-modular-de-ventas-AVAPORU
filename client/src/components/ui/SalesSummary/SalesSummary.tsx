@@ -13,15 +13,15 @@ interface SalesSummaryCardProps {
 export default function SalesSummaryCard({ sales }: SalesSummaryCardProps) {
 
   //Use memo permite memorizar valores calculados para optimizar el rendimiento
-  const { totalHoy, 
-          totalAyer, 
-          variacionVentas, 
-          tendenciaVentas,
-          ordenesHoy,
-          ordenesAyer,
-          variacionOrdenes,
-          tendenciaOrdenes, 
-        } = useMemo(() => {
+  const { totalHoy,
+    totalAyer,
+    variacionVentas,
+    tendenciaVentas,
+    ordenesHoy,
+    ordenesAyer,
+    variacionOrdenes,
+    tendenciaOrdenes,
+  } = useMemo(() => {
 
     //Obtenemos fechas de hoy y ayer
     const today = new Date();
@@ -60,12 +60,12 @@ export default function SalesSummaryCard({ sales }: SalesSummaryCardProps) {
     const tendenciaOrdenes =
       variacionOrdenes > 0 ? "Aumentaron" : variacionOrdenes < 0 ? "Descendieron" : "Se mantuvieron iguales";
 
-    
+
     return { totalHoy, totalAyer, variacionVentas, tendenciaVentas, ordenesHoy, ordenesAyer, variacionOrdenes, tendenciaOrdenes };
   }, [sales]);
 
   return (
-   <>
+    <>
       {/* Ventas del día */}
       <div className="bg-gradient-to-r from-[#10b981] to-[#059669] rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-6">
         <h1 className="text-lg font-semibold text-white mb-6">Ventas del día 💲</h1>
@@ -79,13 +79,12 @@ export default function SalesSummaryCard({ sales }: SalesSummaryCardProps) {
             <>
               Comparado con ayer:{" "}
               <span
-                className={`font-medium ${
-                  variacionVentas > 0
+                className={`font-medium ${variacionVentas > 0
                     ? "text-green-200"
                     : variacionVentas < 0
-                    ? "text-red-200"
-                    : "text-white"
-                }`}
+                      ? "text-red-200"
+                      : "text-white"
+                  }`}
               >
                 {tendenciaVentas} {Math.abs(variacionVentas).toFixed(1)}%
               </span>
@@ -104,13 +103,12 @@ export default function SalesSummaryCard({ sales }: SalesSummaryCardProps) {
           ) : (
             <>
               <span
-                className={`font-medium ${
-                  variacionOrdenes > 0
+                className={`font-medium ${variacionOrdenes > 0
                     ? "text-black-200"
                     : variacionOrdenes < 0
-                    ? "text-black-200"
-                    : "text-black"
-                }`}
+                      ? "text-black-200"
+                      : "text-black"
+                  }`}
               >
                 {tendenciaOrdenes} {Math.abs(variacionOrdenes).toFixed(1)}%
               </span>
