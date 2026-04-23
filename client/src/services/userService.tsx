@@ -28,3 +28,21 @@ export const getMe = async () => {
     const response = await API.get("/auth/me");
     return response.data;
 }
+
+export const updateUser = async (id: string, userData: any, token: string | null) => {
+    const response = await API.put(`/auth/users/${id}`, userData, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    return response.data;
+}
+
+export const deleteUser = async (id: string, token: string | null) => {
+    const response = await API.delete(`/auth/users/${id}`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    return response.data;
+}

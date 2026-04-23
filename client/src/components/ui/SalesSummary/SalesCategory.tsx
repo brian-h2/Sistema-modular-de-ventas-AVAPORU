@@ -71,8 +71,8 @@ export default function SalesCategory({ sales }: { sales: Sale[] }) {
             </Pie>
 
             <Tooltip
-              formatter={(name, props: any) => {
-                const percent = props.payload.percent;
+              formatter={(value: any, name: string, props: any) => {
+                const percent = props?.payload?.percent || 0;
                 return [`${percent}%`, name];
               }}
               contentStyle={{
