@@ -71,18 +71,33 @@ export async function updateUser(req, res) {
     const user = await User.findById(id);
     if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
 
+    // Si el email cambia, verificar que no exista otro usuario con ese email
+    if (email && email !== user.email) {
+      const emailExists = await User.findOne({ email, _id: { $ne: id } });
+      if (emailExists) return res.status(409).json({ error: "El email ya está en uso por otro usuario" });
+      user.email = email;
+    }
+
     if (nombre) user.nombre = nombre;
-    if (email) user.email = email;
     if (role) user.role = role;
     if (status) user.status = status;
     
     if (password) {
+      if (String(password).length < 6) return res.status(400).json({ error: "La contraseña debe tener al menos 6 caracteres" });
       user.passwordHash = await bcrypt.hash(password, 10);
     }
 
     await user.save();
-    res.json(user);
+    
+    // No devolver el hash de la contraseña en la respuesta
+    const userObj = user.toObject();
+    delete userObj.passwordHash;
+    res.json(userObj);
   } catch (e) {
+    console.error("Error actualizando usuario:", e.message);
+    if (e.code === 11000) {
+      return res.status(409).json({ error: "El email ya está registrado" });
+    }
     res.status(400).json({ error: e.message });
   }
 }

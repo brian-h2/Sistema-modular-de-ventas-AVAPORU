@@ -12,6 +12,7 @@ const saleItemSchema = new mongoose.Schema({
 const saleSchema = new mongoose.Schema({
   fecha: { type: Date, default: Date.now },
   cliente: { type: String }, // si más adelante querés relación, se cambia
+  vendedor: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   items: { type: [saleItemSchema], required: true },
   total: { type: Number, required: true, min: 0 },
   estado: { type: String, enum: ["CREADA","PAGADA","FACTURADA","CANCELADA"], default: "CREADA" },

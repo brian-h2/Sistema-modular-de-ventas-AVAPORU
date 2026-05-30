@@ -74,7 +74,7 @@ export default function SalesSummaryCard({ sales }: SalesSummaryCardProps) {
         </p>
         <p className="text-sm text-white mt-1">
           {totalAyer === 0 ? (
-            <span>No hay registros de ayer</span>
+            <span>No hay registros de hoy</span>
           ) : (
             <>
               Comparado con ayer:{" "}
@@ -99,7 +99,7 @@ export default function SalesSummaryCard({ sales }: SalesSummaryCardProps) {
         <p className="text-2xl font-bold text-blue-600">{ordenesHoy}</p>
         <p className="text-sm text-gray-500 mt-1">
           {ordenesAyer === 0 ? (
-            <span>No hay registros de ayer</span>
+            <span>No hay registros de hoy</span>
           ) : (
             <>
               <span
