@@ -54,7 +54,7 @@ export async function createSale(req, res) {
     }
 
     // const total = mapeados.reduce((acc, it) => acc + it.subtotal, 0);
-    const venta = await Sale.create({ items: mapeados, total, cliente });
+    const venta = await Sale.create({ items: mapeados, total, cliente, vendedor: req.user.id });
 
     // Descontar stock
     await Promise.all(
@@ -80,13 +80,13 @@ export async function getSale(req, res) {
 
     if (!id) {
       // Listar todas las ventas
-      const sales = await Sale.find().populate("items.product");
+      const sales = await Sale.find().populate("items.product").populate("vendedor", "nombre email");
 
       return res.json(sales);
     }
 
     // Obtener una venta por ID
-    const sale = await Sale.findById(id).populate("items.product");
+    const sale = await Sale.findById(id).populate("items.product").populate("vendedor", "nombre email");
     if (!sale) {
       return res.status(404).json({ error: "Venta no encontrada" });
     }

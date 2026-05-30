@@ -223,6 +223,7 @@ export default function UserManagement() {
                     setIsCreateOpen(false);
                     setIsEditing(false);
                     setSelectedUserId(null);
+                    setFormData({ nombre: "", username: "", email: "", password: "", confirmPassword: "", role: "Encargado" });
                   }}
                   className="flex-1 border border-slate-300 rounded-xl p-2.5 hover:bg-slate-50 transition-colors font-medium"
                   whileHover={{ scale: 1.02 }}
@@ -241,7 +242,7 @@ export default function UserManagement() {
                     try {
                       if (isEditing && selectedUserId) {
                         const updateData: any = {
-                          nombre: formData.nombre || formData.username,
+                          nombre: formData.username,
                           email: formData.email,
                           role: formData.role
                         };
@@ -267,12 +268,13 @@ export default function UserManagement() {
                       setIsEditing(false);
                       setSelectedUserId(null);
 
-                    } catch (err) {
+                    } catch (err: any) {
                       console.error(err);
+                      const errorMsg = err?.response?.data?.error || (isEditing ? 'Error al actualizar el usuario' : 'Error al crear el usuario');
                       Swal.fire({
                               icon: 'error',
                               title: 'Error',
-                              text: isEditing ? 'Error al actualizar' : 'Error al crear el usuario'
+                              text: errorMsg
                             });
                     }
                   }}
@@ -386,9 +388,9 @@ export default function UserManagement() {
                           className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-full flex items-center justify-center text-lg font-semibold shadow-sm"
                           whileHover={{ scale: 1.1 }}
                         >
-                          {u.nombre
+                          {(u.nombre || "Usuario")
                             .split(" ")
-                            .map((n) => n[0])
+                            .map((n) => n[0] || "")
                             .join("")
                             .slice(0, 2)}
                         </motion.div>
