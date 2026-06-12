@@ -1,4 +1,5 @@
-import { CheckCircleIcon, CurrencyDollarIcon, TrashIcon } from "@heroicons/react/24/solid";
+import { useState } from "react";
+import { CheckCircleIcon, CurrencyDollarIcon, TrashIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Sale } from "../types";
 
@@ -8,6 +9,9 @@ interface SalesListProps {
 }
 
 export default function SalesList({ sales, onUpdateStatus }: SalesListProps) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("TODOS");
+
   const getStatusBadge = (estado: Sale["estado"]) => {
     const styles: Record<string, string> = {
       CREADA: "bg-yellow-100 text-yellow-700 border-yellow-200",
@@ -18,12 +22,44 @@ export default function SalesList({ sales, onUpdateStatus }: SalesListProps) {
     return styles[estado] || "bg-gray-100 text-gray-700";
   };
 
+  const filteredSales = sales.filter((sale) => {
+    const matchesSearch = sale.cliente.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === "TODOS" || sale.estado === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 overflow-y-auto max-h-[75vh]">
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">Órdenes de Venta</h2>
-      {sales.length === 0 && <p className="text-gray-500">No hay ventas registradas aún.</p>}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <h2 className="text-xl font-semibold text-gray-800">Órdenes de Venta</h2>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative">
+            <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Buscar cliente..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 text-sm w-full sm:w-64"
+            />
+          </div>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white"
+          >
+            <option value="TODOS">Todos los estados</option>
+            <option value="CREADA">Creada</option>
+            <option value="PAGADA">Pagada</option>
+            <option value="FACTURADA">Facturada</option>
+            <option value="CANCELADA">Cancelada</option>
+          </select>
+        </div>
+      </div>
+
+      {filteredSales.length === 0 && <p className="text-gray-500">No hay ventas que coincidan con la búsqueda.</p>}
       <AnimatePresence>
-        {sales.map((sale) => (
+        {filteredSales.map((sale) => (
           <motion.div
             key={sale._id}
             className="border border-slate-200 rounded-xl p-4 mb-4 hover:shadow-md transition-all bg-slate-50/30"

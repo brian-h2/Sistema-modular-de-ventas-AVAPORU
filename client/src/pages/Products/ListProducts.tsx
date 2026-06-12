@@ -17,6 +17,8 @@ export default function ProductStockList({ refresh = false }: { refresh?: boolea
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [stockFilter, setStockFilter] = useState("TODOS");
 
   useEffect(() => {
     fetchProducts();
@@ -56,14 +58,49 @@ export default function ProductStockList({ refresh = false }: { refresh?: boolea
     };
   };
 
+  const filteredProducts = products.filter((p) => {
+    const matchesSearch = p.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          (p.sku && p.sku.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    let matchesStock = true;
+    if (stockFilter === "NORMAL") matchesStock = p.stockDisponible > p.stockMinimo;
+    else if (stockFilter === "CRITICO") matchesStock = p.stockDisponible > 0 && p.stockDisponible <= p.stockMinimo;
+    else if (stockFilter === "SIN_STOCK") matchesStock = p.stockDisponible === 0;
+
+    return matchesSearch && matchesStock;
+  });
+
   return (
     <div className="bg-white shadow rounded-lg p-6 mb-8">
-      <h2 className="text-xl font-semibold mb-2 flex items-center space-x-2">
-        <span>Productos en stock</span>
-      </h2>
-      <p className="text-gray-600 mb-4">
-        Listado de productos disponibles para la venta.
-      </p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+        <div>
+          <h2 className="text-xl font-semibold mb-1 flex items-center space-x-2">
+            <span>Productos en stock</span>
+          </h2>
+          <p className="text-gray-600">
+            Listado de productos disponibles para la venta.
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <input
+            type="text"
+            placeholder="Buscar por nombre o SKU..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm w-full sm:w-64"
+          />
+          <select
+            value={stockFilter}
+            onChange={(e) => setStockFilter(e.target.value)}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+          >
+            <option value="TODOS">Todo el stock</option>
+            <option value="NORMAL">Normal</option>
+            <option value="CRITICO">Crítico</option>
+            <option value="SIN_STOCK">Sin Stock</option>
+          </select>
+        </div>
+      </div>
 
       {loading && (
         <p className="text-gray-500 text-sm animate-pulse">Cargando productos...</p>
@@ -79,7 +116,11 @@ export default function ProductStockList({ refresh = false }: { refresh?: boolea
         <p className="text-gray-500">No hay productos disponibles.</p>
       )}
 
-      {!loading && products.length > 0 && (
+      {!loading && !error && products.length > 0 && filteredProducts.length === 0 && (
+        <p className="text-gray-500">No hay productos que coincidan con la búsqueda.</p>
+      )}
+
+      {!loading && filteredProducts.length > 0 && (
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50 text-gray-600 text-sm uppercase">
@@ -94,7 +135,7 @@ export default function ProductStockList({ refresh = false }: { refresh?: boolea
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {products.map((p) => {
+              {filteredProducts.map((p) => {
                 const status = getStockStatus(p);
 
                 return (
