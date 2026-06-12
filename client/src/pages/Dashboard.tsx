@@ -1,8 +1,7 @@
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
-import { TrendingUp, Sparkles, LayoutDashboard, PieChart, Package, ArrowRight, Users, FileText } from 'lucide-react';
+import { TrendingUp, Sparkles, LayoutDashboard, PieChart, Package, Users, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { Variants } from 'framer-motion';
 
 import SalesSummaryCard from "../components/ui/SalesSummary/SalesSummary";
 import ProductsSummaryCard from '../components/ui/ProductsSummary/ProductsSummary';
@@ -96,20 +95,6 @@ export default function Dashboard() {
         fetchSales();
         fetchProducts();
     }, []);
-
-    // Animation variants
-    const containerVariants: Variants = {
-        hidden: { opacity: 0 },
-        show: {
-            opacity: 1,
-            transition: { staggerChildren: 0.1 }
-        }
-    };
-
-    const itemVariants: Variants = {
-        hidden: { opacity: 0, y: 20 },
-        show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
-    };
 
     const tabVariants = {
         hidden: { opacity: 0, y: 10 },

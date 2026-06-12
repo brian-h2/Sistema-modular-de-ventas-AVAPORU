@@ -60,7 +60,6 @@ const renderCustomLabel = ({
   cx,
   cy,
   midAngle,
-  innerRadius,
   outerRadius,
   name,
   percent,

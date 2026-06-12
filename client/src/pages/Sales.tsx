@@ -1,10 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
-import { ClockIcon, UserIcon } from "@heroicons/react/24/solid";
 import { listProducts } from "../services/productsService";
 import ProductStockList from "./Products/ListProducts";
 import { motion, AnimatePresence } from "framer-motion";
-import type { Variants } from "framer-motion";
 import { ShoppingCart, LayoutDashboard, PlusCircle, List as ListIcon, Package } from "lucide-react";
 import SalesCharts from "../components/ui/SalesSummary/SalesCharts";
 import { useSales } from "../features/sales/hooks/useSales";
@@ -38,20 +36,6 @@ export default function Sales() {
       setActiveTab('history'); // Redirigir al historial tras venta exitosa
     }
     return success;
-  };
-
-  // Animation variants
-  const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.08 }
-    }
-  };
-
-  const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
   };
 
   const tabVariants = {
