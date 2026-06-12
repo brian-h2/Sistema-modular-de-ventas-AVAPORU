@@ -98,11 +98,12 @@ export default function SalesForm({ products, onSubmit }: SalesFormProps) {
                 <div className="grid grid-cols-12 gap-3 items-end">
                   <div className="col-span-12 sm:col-span-5">
                     <label className="block text-xs font-medium text-gray-500 mb-1">Producto</label>
-                    <select
+                    <input
+                      list={`products-list-${index}`}
                       value={item.nombre}
                       onChange={(e) => {
                         const val = e.target.value;
-                        const matchedProd = products.find(p => p.sku === val);
+                        const matchedProd = products.find(p => p.sku === val || p.nombre === val);
 
                         const copy = [...form.items];
                         copy[index] = {
@@ -112,16 +113,31 @@ export default function SalesForm({ products, onSubmit }: SalesFormProps) {
                         };
                         setForm({ ...form, items: copy });
                       }}
-                      className="w-full border border-slate-200 rounded-lg px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors appearance-none cursor-pointer"
+                      onBlur={(e) => {
+                        const val = e.target.value;
+                        const matchedProd = products.find(p => p.nombre === val);
+                        if (matchedProd) {
+                          const copy = [...form.items];
+                          copy[index] = {
+                            ...copy[index],
+                            nombre: matchedProd.sku,
+                            precioUnitario: matchedProd.precio
+                          };
+                          setForm({ ...form, items: copy });
+                        }
+                      }}
+                      className="w-full border border-slate-200 rounded-lg px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors"
+                      placeholder="Escribe código o nombre..."
                       required
-                    >
-                      <option value="">Seleccionar producto</option>
+                      autoComplete="off"
+                    />
+                    <datalist id={`products-list-${index}`}>
                       {products.map(p => (
                         <option key={p._id} value={p.sku}>
                           {p.nombre} (${p.precio.toLocaleString("es-AR")})
                         </option>
                       ))}
-                    </select>
+                    </datalist>
                   </div>
                   <div className="col-span-6 sm:col-span-3">
                     <label className="block text-xs font-medium text-gray-500 mb-1">Cantidad</label>
