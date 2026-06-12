@@ -26,6 +26,8 @@ export default function ExpensesModule() {
 
   //Aca guardamos lo que viene del backend
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("TODAS");
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -471,16 +473,39 @@ export default function ExpensesModule() {
 
           {/* GASTOS REGISTRADOS */}
           <Card className="bg-white shadow-sm rounded-2xl border border-slate-100 p-6 mt-6 transition-all hover:shadow-md">
-            <CardHeader>
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <CardTitle className="flex items-center gap-2">
                 <div className="p-1.5 bg-amber-100 rounded-lg">
                   <Receipt className="w-5 h-5 text-amber-600" />
                 </div>
                 Gastos Registrados
               </CardTitle>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="text"
+                  placeholder="Buscar descripción..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                />
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                  className="px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white"
+                >
+                  <option value="TODAS">Todas las categorías</option>
+                  {expenseCategories.map(cat => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+                </select>
+              </div>
             </CardHeader>
             <CardContent className="space-y-3 max-h-96 overflow-y-auto">
-              {expenses.map((exp, i) => (
+              {expenses.filter(exp => {
+                const matchesSearch = exp.description.toLowerCase().includes(searchTerm.toLowerCase());
+                const matchesCat = categoryFilter === "TODAS" || exp.categoria === categoryFilter;
+                return matchesSearch && matchesCat;
+              }).map((exp, i) => (
                 <motion.div
                   key={exp._id}
                   className="border border-slate-200 rounded-xl p-3 hover:shadow-sm transition-all bg-slate-50/30"
