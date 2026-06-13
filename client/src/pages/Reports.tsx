@@ -146,9 +146,10 @@ export function ReportsModule() {
   };
 
   return (
-    <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-8 font-sans">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div className="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen font-sans">
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-8">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
           <div className="flex items-center gap-3">
             <BarChart2 className="w-8 h-8 text-green-600" />
@@ -486,6 +487,7 @@ export function ReportsModule() {
         )}
       </AnimatePresence>
 
+      </div>
     </div>
   );
 }
