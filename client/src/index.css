@@ -9,15 +9,3 @@
     
 }
 
-#pdfArea * {
-  overflow: visible !important;
-  background: white !important;
-  
-}
-
-#pdfArea button {
-    overflow: visible !important;
-    background:green !important;
-}
-
-

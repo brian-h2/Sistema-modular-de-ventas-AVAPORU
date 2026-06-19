@@ -502,7 +502,7 @@ export default function ExpensesModule() {
             </CardHeader>
             <CardContent className="space-y-3 max-h-96 overflow-y-auto">
               {expenses.filter(exp => {
-                const matchesSearch = exp.description.toLowerCase().includes(searchTerm.toLowerCase());
+                const matchesSearch = (exp.description ?? "").toLowerCase().includes(searchTerm.toLowerCase());
                 const matchesCat = categoryFilter === "TODAS" || exp.categoria === categoryFilter;
                 return matchesSearch && matchesCat;
               }).map((exp, i) => (
