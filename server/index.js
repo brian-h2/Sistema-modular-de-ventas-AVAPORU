@@ -11,7 +11,9 @@ import salesRouter from "./routes/sales.routes.js";
 import expensesRouter from "./routes/expenses.routes.js";
 import authRouter from "./routes/auth.routes.js";
 import reportesRouter from "./routes/reports.routes.js";
+import scheduledReportsRouter from "./routes/scheduledReports.routes.js";
 import { authRequired, requireRole } from "./middlewares/auth.middleware.js";
+import { iniciarSchedulerReportes } from "./services/scheduler.js";
 
 dotenv.config();
 
@@ -38,6 +40,7 @@ const PORT = process.env.PORT || 4000;
 app.listen(PORT, async () => {
   await connectDB(process.env.MONGODB_URI);
   console.log(`🚀 API en http://localhost:${PORT}`);
+  iniciarSchedulerReportes();
 });
 
 app.use(cors({
@@ -53,3 +56,4 @@ app.use("/products", authRequired, productsRouter);
 app.use("/sales",    authRequired, salesRouter);
 app.use("/expenses", authRequired, expensesRouter);
 app.use("/reportes", authRequired, reportesRouter);
+app.use("/scheduled-reports", authRequired, scheduledReportsRouter);
