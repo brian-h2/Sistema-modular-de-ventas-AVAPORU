@@ -10,9 +10,20 @@ import {
   ShoppingCart,
   Filter,
   PlusCircle,
-  Trash2
+  Trash2,
+  Mail,
+  Send,
+  Power
 } from "lucide-react";
 import { createReport, deleteReport, getSalesReport, listReports } from "../services/reportService";
+import {
+  listScheduledReports,
+  createScheduledReport,
+  toggleScheduledReport,
+  sendScheduledReportNow,
+  deleteScheduledReport,
+  type ScheduledReport,
+} from "../services/scheduledReportsService";
 import { ResponsiveContainer, BarChart, XAxis, YAxis, Tooltip, Bar, CartesianGrid } from "recharts";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas-pro";
@@ -105,15 +116,26 @@ export function ReportsModule() {
   const [filterDesde, setFilterDesde] = useState("");
   const [filterHasta, setFilterHasta] = useState("");
   const [salesReport, setSalesReport] = useState<any>(null);
+  const [scheduledReports, setScheduledReports] = useState<ScheduledReport[]>([]);
 
   const fetchSales = async () => {
     const data = await getSalesReport(filterDesde, filterHasta);
     setSalesReport(data);
   };
 
+  const fetchScheduledReports = async () => {
+    try {
+      const data = await listScheduledReports();
+      setScheduledReports(data);
+    } catch (e) {
+      console.error("Error al cargar reportes programados:", e);
+    }
+  };
+
   useEffect(() => {
     fetchSales();
     listReports().then(setReportes);
+    fetchScheduledReports();
   }, []);
 
   const totalVentas = salesReport?.totalVentas ?? 0;
@@ -153,6 +175,56 @@ export function ReportsModule() {
     await deleteReport(id);
     Swal.fire("Eliminado", "Reporte borrado correctamente", "success");
     listReports().then(setReportes);
+  };
+
+  const handleCreateSchedule = async () => {
+    if (!scheduleForm.email.trim()) {
+      Swal.fire("Error", "El correo electrónico es obligatorio", "error");
+      return;
+    }
+
+    try {
+      await createScheduledReport(scheduleForm);
+      Swal.fire("Programado", "El reporte automático fue programado exitosamente", "success");
+      setIsScheduleOpen(false);
+      setScheduleForm({ tipo: "Ventas", frecuencia: "Diario", email: "" });
+      fetchScheduledReports();
+    } catch (err: any) {
+      Swal.fire("Error", err?.response?.data?.error || "No se pudo programar el reporte", "error");
+    }
+  };
+
+  const handleToggleSchedule = async (id: string) => {
+    try {
+      await toggleScheduledReport(id);
+      fetchScheduledReports();
+    } catch {
+      Swal.fire("Error", "No se pudo actualizar el reporte programado", "error");
+    }
+  };
+
+  const handleSendScheduleNow = async (id: string) => {
+    try {
+      const res = await sendScheduledReportNow(id);
+      Swal.fire("Enviado", res.message || "Reporte enviado", "success");
+      fetchScheduledReports();
+    } catch (err: any) {
+      Swal.fire("Error", err?.response?.data?.error || "No se pudo enviar el reporte", "error");
+    }
+  };
+
+  const handleDeleteSchedule = async (id: string) => {
+    const result = await Swal.fire({
+      title: "¿Eliminar reporte programado?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    });
+    if (!result.isConfirmed) return;
+
+    await deleteScheduledReport(id);
+    fetchScheduledReports();
   };
 
   return (
@@ -279,6 +351,76 @@ export function ReportsModule() {
             )}
           </div>
         </div>
+      </motion.div>
+
+      {/* Reportes Programados */}
+      <motion.div
+        className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl p-6 shadow-sm mb-10"
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.25, duration: 0.4 }}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Mail className="w-5 h-5 text-green-600 dark:text-green-400" />
+            <h2 className="text-xl font-bold text-gray-800 dark:text-slate-100">Reportes Programados</h2>
+          </div>
+          <span className="bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-400 text-xs font-bold px-3 py-1 rounded-full">
+            {scheduledReports.length}
+          </span>
+        </div>
+
+        {scheduledReports.length === 0 ? (
+          <p className="text-gray-500 dark:text-slate-400 text-sm text-center py-4">
+            No hay reportes automáticos programados. Usá "Programar Reporte" para crear uno.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {scheduledReports.map((s) => (
+              <div
+                key={s._id}
+                className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-lg border ${s.activo ? "bg-gray-50 dark:bg-slate-800 border-gray-100 dark:border-slate-700" : "bg-gray-50/50 dark:bg-slate-800/50 border-gray-100 dark:border-slate-700 opacity-60"}`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-emerald-50 dark:bg-emerald-900/30 rounded flex items-center justify-center shrink-0">
+                    <FileText className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-gray-800 dark:text-slate-100">
+                      {s.tipo} <span className="font-normal text-gray-400 dark:text-slate-500">· {s.frecuencia}</span>
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-slate-400">
+                      {s.email} {s.ultimoEnvio ? `· último envío ${new Date(s.ultimoEnvio).toLocaleString("es-AR")}` : "· sin enviar aún"}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 self-end sm:self-auto">
+                  <button
+                    onClick={() => handleSendScheduleNow(s._id)}
+                    className="text-blue-600 dark:text-blue-400 hover:text-blue-800 hover:dark:text-blue-400 transition-colors p-1.5 rounded-lg hover:bg-blue-50 hover:dark:bg-blue-900/30"
+                    title="Enviar ahora"
+                  >
+                    <Send className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleToggleSchedule(s._id)}
+                    className={`transition-colors p-1.5 rounded-lg ${s.activo ? "text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 hover:dark:bg-emerald-900/30" : "text-gray-400 dark:text-slate-500 hover:bg-gray-100 hover:dark:bg-slate-800"}`}
+                    title={s.activo ? "Desactivar" : "Activar"}
+                  >
+                    <Power className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteSchedule(s._id)}
+                    className="text-red-500 dark:text-red-400 hover:text-red-700 hover:dark:text-red-400 transition-colors p-1.5 rounded-lg hover:bg-red-50 hover:dark:bg-red-900/30"
+                    title="Eliminar"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </motion.div>
 
       {/* Divisor Dashboard Analítico */}
@@ -518,11 +660,8 @@ export function ReportsModule() {
                 >
                   Cancelar
                 </motion.button>
-                <motion.button 
-                  onClick={() => {
-                    Swal.fire("Programado", "Reporte programado exitosamente", "success");
-                    setIsScheduleOpen(false);
-                  }}
+                <motion.button
+                  onClick={handleCreateSchedule}
                   className="flex-1 bg-emerald-500 text-white rounded-xl py-2.5 font-semibold hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-500/25 cursor-pointer"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.95 }}

@@ -1,13 +1,10 @@
 import { ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight } from "lucide-react";
-import { cn } from "./Utils";
 
 interface PaginationProps {
   currentPage: number;
   totalItems: number;
   pageSize: number;
   onPageChange: (page: number) => void;
-  onPageSizeChange: (size: number) => void;
-  pageSizeOptions?: number[];
 }
 
 export default function Pagination({
@@ -15,15 +12,10 @@ export default function Pagination({
   totalItems,
   pageSize,
   onPageChange,
-  onPageSizeChange,
-  pageSizeOptions = [5, 10, 15],
 }: PaginationProps) {
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
   const isFirstPage = currentPage <= 1;
   const isLastPage = currentPage >= totalPages;
-
-  const from = totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1;
-  const to = Math.min(currentPage * pageSize, totalItems);
 
   const navButtonClass =
     "p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-indigo-700 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-500 dark:disabled:hover:text-slate-400 disabled:cursor-not-allowed";
