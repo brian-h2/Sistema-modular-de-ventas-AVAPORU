@@ -44,7 +44,7 @@ export default function Stock() {
   const [statusFilter, setStatusFilter] = useState("Todos los estados");
   const [showModal, setShowModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize] = useState(5);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isNewCategory, setIsNewCategory] = useState(false);
 
@@ -566,7 +566,6 @@ export default function Stock() {
               totalItems={filteredProducts.length}
               pageSize={pageSize}
               onPageChange={setCurrentPage}
-              onPageSizeChange={setPageSize}
             />
           </div>
         )}

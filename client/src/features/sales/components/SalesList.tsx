@@ -15,7 +15,7 @@ export default function SalesList({ sales, onUpdateStatus }: SalesListProps) {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize] = useState(5);
 
   const getStatusBadge = (estado: Sale["estado"]) => {
     const styles: Record<string, string> = {
@@ -188,7 +188,6 @@ export default function SalesList({ sales, onUpdateStatus }: SalesListProps) {
           totalItems={filteredSales.length}
           pageSize={pageSize}
           onPageChange={setCurrentPage}
-          onPageSizeChange={setPageSize}
         />
       )}
     </div>
