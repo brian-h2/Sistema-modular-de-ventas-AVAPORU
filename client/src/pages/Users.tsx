@@ -27,7 +27,7 @@ export default function UserManagement() {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize] = useState(5);
 
 
   interface SystemUsers {
@@ -471,7 +471,6 @@ export default function UserManagement() {
                 totalItems={filteredUsers.length}
                 pageSize={pageSize}
                 onPageChange={setCurrentPage}
-                onPageSizeChange={setPageSize}
               />
             )}
 

@@ -21,7 +21,7 @@ export default function ProductStockList({ refresh = false }: { refresh?: boolea
   const [searchTerm, setSearchTerm] = useState("");
   const [stockFilter, setStockFilter] = useState("TODOS");
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize] = useState(5);
 
   useEffect(() => {
     fetchProducts();
@@ -192,7 +192,6 @@ export default function ProductStockList({ refresh = false }: { refresh?: boolea
           totalItems={filteredProducts.length}
           pageSize={pageSize}
           onPageChange={setCurrentPage}
-          onPageSizeChange={setPageSize}
         />
       )}
     </div>
