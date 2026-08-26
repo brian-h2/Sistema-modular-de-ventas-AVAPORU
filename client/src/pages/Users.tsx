@@ -7,6 +7,7 @@ import { listUsers, registerUserAdmin, updateUser, deleteUser } from "../service
 import Swal from "sweetalert2";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Variants } from "framer-motion";
+import Pagination from "../components/ui/Pagination";
 
 
 export default function UserManagement() {
@@ -25,6 +26,8 @@ export default function UserManagement() {
   });
   const [isEditing, setIsEditing] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
 
 
   interface SystemUsers {
@@ -97,9 +100,22 @@ export default function UserManagement() {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
   };
-  
+
+  const filteredUsers = systemUsers.filter(
+    (u) => userFilter === "all" || u.status === userFilter
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [userFilter, pageSize]);
+
+  const paginatedUsers = filteredUsers.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
   return (
-    <div className="p-4 sm:p-8 bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen flex flex-col gap-8 font-sans">
+    <div className="p-4 sm:p-8 bg-gradient-to-br from-slate-50 dark:from-slate-900 to-slate-100 dark:to-slate-800 min-h-screen flex flex-col gap-8 font-sans">
       {/* Header */}
       <motion.div 
         className="flex justify-between items-center"
@@ -109,12 +125,12 @@ export default function UserManagement() {
       >
         <div>
           <div className="flex items-center gap-3 mb-1">
-            <div className="p-2 bg-emerald-100 text-emerald-600 rounded-xl shadow-sm">
+            <div className="p-2 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 rounded-xl shadow-sm">
               <UserCog className="w-6 h-6" />
             </div>
-            <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Gestión de Usuarios</h1>
+            <h1 className="text-4xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">Gestión de Usuarios</h1>
           </div>
-          <p className="text-lg text-slate-500 font-medium mt-2">
+          <p className="text-lg text-slate-500 dark:text-slate-400 font-medium mt-2">
             Administración de usuarios, roles y permisos del sistema
           </p>
         </div>
@@ -138,75 +154,75 @@ export default function UserManagement() {
             exit={{ opacity: 0 }}
           >
             <motion.div 
-              className="bg-white p-6 rounded-2xl w-full max-w-lg shadow-2xl border border-slate-100"
+              className="bg-white dark:bg-slate-900 p-6 rounded-2xl w-full max-w-lg shadow-2xl border border-slate-100 dark:border-slate-700"
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
             >
 
-              <h2 className="text-2xl font-bold text-gray-900">{isEditing ? "Editar Usuario" : "Crear Nuevo Usuario"}</h2>
-              <p className="text-gray-600 mb-6">{isEditing ? "Modifica los datos del usuario." : "Complete los campos para crear un nuevo usuario del sistema."}</p>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">{isEditing ? "Editar Usuario" : "Crear Nuevo Usuario"}</h2>
+              <p className="text-gray-600 dark:text-slate-400 mb-6">{isEditing ? "Modifica los datos del usuario." : "Complete los campos para crear un nuevo usuario del sistema."}</p>
 
               <div className="grid grid-cols-2 gap-4">
 
                 {/* USERNAME */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Usuario *</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Usuario *</label>
                   <input
                     type="text"
                     value={formData.username}
                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                    className="w-full border border-slate-200 rounded-lg p-2.5 bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-colors"
+                    className="w-full border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 bg-slate-50/50 dark:bg-slate-800/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-colors"
                     placeholder="Usuario"
                   />
                 </div>
 
                 {/* EMAIL */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Email *</label>
                   <input
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full border border-slate-200 rounded-lg p-2.5 bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-colors"
+                    className="w-full border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 bg-slate-50/50 dark:bg-slate-800/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-colors"
                     placeholder="email@empresa.com"
                   />
                 </div>
 
                 {/* PASSWORD */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
                     {isEditing ? "Nueva Contraseña (opcional)" : "Contraseña *"}
                   </label>
                   <input
                     type="password"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="w-full border border-slate-200 rounded-lg p-2.5 bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-colors"
+                    className="w-full border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 bg-slate-50/50 dark:bg-slate-800/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-colors"
                     placeholder="•••••••"
                   />
                 </div>
 
                 {/* CONFIRM PASSWORD */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Confirmar Contraseña *</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Confirmar Contraseña *</label>
                   <input
                     type="password"
                     value={formData.confirmPassword}
                     onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                    className="w-full border border-slate-200 rounded-lg p-2.5 bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-colors"
+                    className="w-full border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 bg-slate-50/50 dark:bg-slate-800/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-colors"
                     placeholder="•••••••"
                   />
                 </div>
 
                 {/* ROLE */}
                 <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Rol *</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Rol *</label>
                   <select
                     value={formData.role}
                     onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                    className="w-full border border-slate-200 rounded-lg p-2.5 bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-colors"
+                    className="w-full border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 bg-slate-50/50 dark:bg-slate-800/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-colors"
                   >
                     <option value="Encargado">Encargado</option>
                     <option value="Gerente">Gerente</option>
@@ -225,7 +241,7 @@ export default function UserManagement() {
                     setSelectedUserId(null);
                     setFormData({ nombre: "", username: "", email: "", password: "", confirmPassword: "", role: "Encargado" });
                   }}
-                  className="flex-1 border border-slate-300 rounded-xl p-2.5 hover:bg-slate-50 transition-colors font-medium"
+                  className="flex-1 border border-slate-300 dark:border-slate-600 rounded-xl p-2.5 hover:bg-slate-50 hover:dark:bg-slate-950 transition-colors font-medium"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
@@ -293,35 +309,35 @@ export default function UserManagement() {
 
 
       {/* Stats */}
-      <motion.div 
+      <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-1 md:grid-cols-4 gap-4"
+        className="grid grid-cols-1 md:grid-cols-2 gap-4"
       >
         <motion.div variants={itemVariants}>
-          <Card className="bg-white shadow-sm rounded-xl border border-slate-100 p-5 transition-all hover:-translate-y-1 hover:shadow-md">
+          <Card className="bg-white dark:bg-slate-900 shadow-sm rounded-xl border border-slate-100 dark:border-slate-700 p-5 transition-all hover:-translate-y-1 hover:shadow-md">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-emerald-100 rounded-lg">
-                <Users className="w-7 h-7 text-emerald-500" />
+              <div className="p-2 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg">
+                <Users className="w-7 h-7 text-emerald-500 dark:text-emerald-400" />
               </div>
               <div>
-                <p className="text-sm text-slate-500 font-medium">Total Usuarios</p>
-                <p className="text-2xl font-bold">{systemUsers.length}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Total Usuarios</p>
+                <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{systemUsers.length}</p>
               </div>
             </div>
           </Card>
         </motion.div>
 
         <motion.div variants={itemVariants}>
-          <Card className="bg-white shadow-sm rounded-xl border border-slate-100 p-5 transition-all hover:-translate-y-1 hover:shadow-md">
+          <Card className="bg-white dark:bg-slate-900 shadow-sm rounded-xl border border-slate-100 dark:border-slate-700 p-5 transition-all hover:-translate-y-1 hover:shadow-md">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <CheckCircle className="w-7 h-7 text-green-500" />
+              <div className="p-2 bg-green-100 dark:bg-green-900/40 rounded-lg">
+                <CheckCircle className="w-7 h-7 text-green-500 dark:text-green-400" />
               </div>
               <div>
-                <p className="text-sm text-slate-500 font-medium">Activos</p>
-                <p className="text-2xl font-bold text-green-600">
+                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Activos</p>
+                <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                   {systemUsers.filter((u) => u.status === "active").length}
                 </p>
               </div>
@@ -330,61 +346,40 @@ export default function UserManagement() {
         </motion.div>
       </motion.div>
 
-      {/* Filtro */}
+      {/* Tabla */}
       <motion.div
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        <Card className="bg-white rounded-xl shadow-sm border border-slate-100">
-          <CardContent className="pb-0 pt-6">
-            <div className="flex items-center gap-4">
-              <div className="p-1.5 bg-emerald-100 rounded-lg">
-                <Users className="w-5 h-5 text-emerald-500" />
-              </div>
-              <select
-                className="px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-slate-50/50 transition-colors"
-                value={userFilter}
-                onChange={(e) => setUserFilter(e.target.value)}
-              >
-                <option value="all">Todos los usuarios</option>
-                <option value="active">Activos</option>
-                <option value="inactive">Inactivos</option>
-              </select>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* Tabla */}
-      <motion.div
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-      >
-        <Card className="bg-white shadow-sm rounded-2xl border border-slate-100">
+        <Card className="bg-white dark:bg-slate-900 shadow-sm rounded-2xl border border-slate-100 dark:border-slate-700">
           <CardContent className="p-6 flex flex-col overflow-y-auto max-h-[75vh]">
-          <CardTitle className="text-xl font-semibold mb-4 flex items-center space-x-2">Lista de Usuarios 👤</CardTitle>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+            <CardTitle className="text-xl font-semibold flex items-center space-x-2 text-slate-900 dark:text-slate-100">Lista de Usuarios 👤</CardTitle>
+            <select
+              className="px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-slate-50/50 dark:bg-slate-800/50 transition-colors text-sm"
+              value={userFilter}
+              onChange={(e) => setUserFilter(e.target.value)}
+            >
+              <option value="all">Todos los usuarios</option>
+              <option value="active">Activos</option>
+              <option value="inactive">Inactivos</option>
+            </select>
+          </div>
 
             <div className="space-y-4">
-              <AnimatePresence>
-                {systemUsers.map((u, i) => {
+                {paginatedUsers.map((u) => {
                     const userId = u._id || u.id;
                     return (
-                      <motion.div
+                      <div
                         key={userId}
-                        className={"border rounded-xl p-4 transition-all " + (u.status === 'inactive' ? 'bg-slate-200 opacity-60 border-slate-300' : 'border-slate-200 hover:shadow-md bg-slate-50/30')}
-                        initial={{ opacity: 0, y: 15 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        transition={{ delay: i * 0.05 }}
-                        layout
+                        className={"border rounded-xl p-4 transition-all " + (u.status === 'inactive' ? 'bg-slate-200 dark:bg-slate-700 opacity-60 border-slate-300 dark:border-slate-600' : 'border-slate-200 dark:border-slate-700 hover:shadow-md bg-slate-50/30 dark:bg-slate-800/30')}
                       >
                     <div className="flex justify-between items-start gap-4">
                       {/* LEFT: Avatar + datos */}
                       <div className="flex items-start gap-3">
                         {/* Avatar */}
-                        <motion.div 
+                        <motion.div
                           className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-full flex items-center justify-center text-lg font-semibold shadow-sm"
                           whileHover={{ scale: 1.1 }}
                         >
@@ -396,10 +391,10 @@ export default function UserManagement() {
                         </motion.div>
 
                         <div>
-                          <h3 className="font-semibold text-lg">{u.nombre}</h3>
+                          <h3 className="font-semibold text-lg text-slate-900 dark:text-slate-100">{u.nombre}</h3>
 
                           {/* Username + correo */}
-                          <p className="text-sm text-gray-600 flex items-center gap-1">
+                          <p className="text-sm text-gray-600 dark:text-slate-400 flex items-center gap-1">
                             @{u.username} · {u.email}
                           </p>
 
@@ -410,11 +405,11 @@ export default function UserManagement() {
                       <div className="flex flex-col items-end gap-2">
                         {/* Badges */}
                         <div className="flex items-center gap-2">
-                          <span className={"px-2.5 py-1 text-xs rounded-full flex items-center gap-1 font-medium " + (u.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-slate-300 text-slate-700')}>
+                          <span className={"px-2.5 py-1 text-xs rounded-full flex items-center gap-1 font-medium " + (u.status === 'active' ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400' : 'bg-slate-300 text-slate-700 dark:text-slate-300')}>
                             {u.status === 'active' ? <CheckCircle className="w-3 h-3" /> : <UserX className="w-3 h-3" />} {u.status === 'active' ? 'Activo' : 'Inactivo'}
                           </span>
 
-                          <span className="px-2.5 py-1 bg-blue-100 text-blue-700 text-xs rounded-full flex items-center gap-1 font-medium">
+                          <span className="px-2.5 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 text-xs rounded-full flex items-center gap-1 font-medium">
                             <Shield className="w-3 h-3" /> {u.role}
                           </span>
                         </div>
@@ -437,7 +432,7 @@ export default function UserManagement() {
                               setIsEditing(true);
                               setIsCreateOpen(true);
                             }}
-                            className="border border-slate-200 p-2 rounded-lg hover:bg-slate-100 transition-colors text-blue-600"
+                            className="border border-slate-200 dark:border-slate-700 p-2 rounded-lg hover:bg-slate-100 hover:dark:bg-slate-800 transition-colors text-blue-600 dark:text-blue-400"
                             title="Editar usuario"
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
@@ -446,7 +441,7 @@ export default function UserManagement() {
                           </motion.button>
                           <motion.button 
                             onClick={() => handleToggleStatus(u)}
-                            className="border border-slate-200 p-2 rounded-lg hover:bg-slate-100 transition-colors text-slate-600"
+                            className="border border-slate-200 dark:border-slate-700 p-2 rounded-lg hover:bg-slate-100 hover:dark:bg-slate-800 transition-colors text-slate-600 dark:text-slate-400"
                             title={u.status === 'active' ? 'Desactivar usuario' : 'Activar usuario'}
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
@@ -455,7 +450,7 @@ export default function UserManagement() {
                           </motion.button>
                           <motion.button 
                             onClick={() => handleDelete(userId)}
-                            className="border border-slate-200 p-2 rounded-lg hover:bg-slate-100 transition-colors text-red-600"
+                            className="border border-slate-200 dark:border-slate-700 p-2 rounded-lg hover:bg-slate-100 hover:dark:bg-slate-800 transition-colors text-red-600 dark:text-red-400"
                             title="Eliminar usuario"
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
@@ -465,39 +460,20 @@ export default function UserManagement() {
                         </div>
                       </div>
                     </div>
-
-                    {/* Permisos */}
-                    <div className="mt-4">
-                        <p className="font-medium text-sm">Permisos:</p>
-
-                        <div className="mt-2 flex flex-wrap gap-2 text-xs">
-                          {[
-                            "Crear Ventas",
-                            "Ver Ventas",
-                            "Procesar Devoluciones",
-                            "Ver Stock",
-                            "Actualizar Stock",
-                            "Gestionar Productos"
-                          ].map((permiso) => (
-                            <span
-                              key={permiso}
-                              className="bg-slate-100 border border-slate-200 rounded-full px-3 py-1 text-slate-700 font-medium"
-                            >
-                              {permiso}
-                            </span>
-                          ))}
-
-                          {/* Botón "+9 más" como en la imagen */}
-                          <button className="text-blue-600 text-xs hover:underline font-medium">
-                            +9 más
-                          </button>
-                        </div>
-                      </div>
-                  </motion.div>
+                  </div>
                 );
               })}
-            </AnimatePresence>
             </div>
+
+            {filteredUsers.length > 0 && (
+              <Pagination
+                currentPage={currentPage}
+                totalItems={filteredUsers.length}
+                pageSize={pageSize}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={setPageSize}
+              />
+            )}
 
           </CardContent>
         </Card>

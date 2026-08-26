@@ -94,20 +94,20 @@ export default function SalesSummaryCard({ sales }: SalesSummaryCardProps) {
       </div>
 
       {/* Órdenes procesadas */}
-      <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-6">
-        <h1 className="text-lg font-semibold text-gray-700 mb-6">Órdenes procesadas 📈</h1>
-        <p className="text-2xl font-bold text-blue-600">{ordenesHoy}</p>
-        <p className="text-sm text-gray-500 mt-1">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-6">
+        <h1 className="text-lg font-semibold text-gray-700 dark:text-slate-300 mb-6">Órdenes procesadas 📈</h1>
+        <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{ordenesHoy}</p>
+        <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
           {ordenesAyer === 0 ? (
             <span>No hay registros de hoy</span>
           ) : (
             <>
               <span
                 className={`font-medium ${variacionOrdenes > 0
-                    ? "text-black-200"
+                    ? "text-green-600 dark:text-green-400"
                     : variacionOrdenes < 0
-                      ? "text-black-200"
-                      : "text-black"
+                      ? "text-red-600 dark:text-red-400"
+                      : "text-gray-500 dark:text-slate-400"
                   }`}
               >
                 {tendenciaOrdenes} {Math.abs(variacionOrdenes).toFixed(1)}%

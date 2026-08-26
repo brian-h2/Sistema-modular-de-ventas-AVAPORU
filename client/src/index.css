@@ -1,5 +1,47 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  input,
+  select,
+  textarea {
+    color: #1e293b; /* slate-800 */
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: #94a3b8; /* slate-400 */
+  }
+
+  .dark input,
+  .dark select,
+  .dark textarea {
+    color: #f1f5f9; /* slate-100 */
+  }
+
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    color: #64748b; /* slate-500 */
+  }
+
+  select option {
+    color: #1e293b;
+    background-color: #ffffff;
+  }
+
+  .dark select option {
+    color: #f1f5f9;
+    background-color: #1e293b;
+  }
+
+  .dark input[type="date"]::-webkit-calendar-picker-indicator,
+  .dark input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+  .dark input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+  }
+}
+
 *{
     box-sizing: border-box;
     font-family: 'Roboto', sans-serif;

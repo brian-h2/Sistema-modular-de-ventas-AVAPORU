@@ -45,7 +45,7 @@ export default function Sales() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 sm:p-8 flex flex-col gap-6 font-sans">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 sm:p-8 flex flex-col gap-6 font-sans">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -55,43 +55,43 @@ export default function Sales() {
       >
         <div>
           <div className="flex items-center gap-3 mb-1">
-            <div className="p-2 bg-indigo-100 text-indigo-600 rounded-xl shadow-sm">
+            <div className="p-2 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 rounded-xl shadow-sm">
               <ShoppingCart className="w-6 h-6" />
             </div>
-            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Panel de Ventas</h1>
+            <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">Panel de Ventas</h1>
           </div>
-          <p className="text-slate-500 font-medium mt-2">
+          <p className="text-slate-500 dark:text-slate-400 font-medium mt-2">
             Gestiona las órdenes, clientes y seguimiento de ingresos
           </p>
         </div>
       </motion.div>
 
       {/* TAB NAVIGATION */}
-      <div className="flex items-center space-x-1 border-b border-slate-200 bg-white p-1 rounded-t-xl shadow-sm overflow-x-auto">
+      <div className="flex items-center space-x-1 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-1 rounded-t-xl shadow-sm overflow-x-auto">
         <button
           onClick={() => setActiveTab('overview')}
-          className={`flex items-center gap-2 px-5 py-3 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${activeTab === 'overview' ? 'bg-indigo-50 text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'}`}
+          className={`flex items-center gap-2 px-5 py-3 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${activeTab === 'overview' ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 hover:dark:text-slate-300 hover:bg-slate-50 hover:dark:bg-slate-950'}`}
         >
           <LayoutDashboard className="w-4 h-4" />
           Visión General
         </button>
         <button
           onClick={() => setActiveTab('new_sale')}
-          className={`flex items-center gap-2 px-5 py-3 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${activeTab === 'new_sale' ? 'bg-indigo-50 text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'}`}
+          className={`flex items-center gap-2 px-5 py-3 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${activeTab === 'new_sale' ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 hover:dark:text-slate-300 hover:bg-slate-50 hover:dark:bg-slate-950'}`}
         >
           <PlusCircle className="w-4 h-4" />
           Nueva Venta
         </button>
         <button
           onClick={() => setActiveTab('history')}
-          className={`flex items-center gap-2 px-5 py-3 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${activeTab === 'history' ? 'bg-indigo-50 text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'}`}
+          className={`flex items-center gap-2 px-5 py-3 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${activeTab === 'history' ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 hover:dark:text-slate-300 hover:bg-slate-50 hover:dark:bg-slate-950'}`}
         >
           <ListIcon className="w-4 h-4" />
           Historial de Órdenes
         </button>
         <button
           onClick={() => setActiveTab('inventory')}
-          className={`flex items-center gap-2 px-5 py-3 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${activeTab === 'inventory' ? 'bg-indigo-50 text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'}`}
+          className={`flex items-center gap-2 px-5 py-3 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${activeTab === 'inventory' ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 hover:dark:text-slate-300 hover:bg-slate-50 hover:dark:bg-slate-950'}`}
         >
           <Package className="w-4 h-4" />
           Consulta de Stock
@@ -111,26 +111,26 @@ export default function Sales() {
           >
             {/* Resumen */}
             {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <motion.div variants={itemVariants} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between transition-all hover:shadow-md">
+              <motion.div variants={itemVariants} className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-between transition-all hover:shadow-md">
                 <div>
-                  <p className="text-sm font-medium text-slate-500 mb-1">Ventas del Día</p>
-                  <p className="text-3xl font-bold text-slate-800">
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Ventas del Día</p>
+                  <p className="text-3xl font-bold text-slate-800 dark:text-slate-100">
                     {sales.filter(s => new Date(s.fecha).toDateString() === new Date().toDateString()).length}
                   </p>
                 </div>
-                <div className="bg-emerald-100 p-3 rounded-xl text-emerald-600">
+                <div className="bg-emerald-100 dark:bg-emerald-900/40 p-3 rounded-xl text-emerald-600 dark:text-emerald-400">
                   <ClockIcon className="h-7 w-7" />
                 </div>
               </motion.div>
 
-              <motion.div variants={itemVariants} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between transition-all hover:shadow-md">
+              <motion.div variants={itemVariants} className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-between transition-all hover:shadow-md">
                 <div>
-                  <p className="text-sm font-medium text-slate-500 mb-1">Clientes Únicos (Mes)</p>
-                  <p className="text-3xl font-bold text-slate-800">
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Clientes Únicos (Mes)</p>
+                  <p className="text-3xl font-bold text-slate-800 dark:text-slate-100">
                     {new Set(sales.map(s => s.cliente)).size}
                   </p>
                 </div>
-                <div className="bg-blue-100 p-3 rounded-xl text-blue-600">
+                <div className="bg-blue-100 dark:bg-blue-900/40 p-3 rounded-xl text-blue-600 dark:text-blue-400">
                   <UserIcon className="h-7 w-7" />
                 </div>
               </motion.div>

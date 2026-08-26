@@ -13,6 +13,7 @@ import {
   Legend,
 } from "recharts";
 import { ShoppingBag, Users } from "lucide-react";
+import { useTheme } from "../../../context/ThemeContext";
 
 interface SaleItem {
   nombre: string;
@@ -56,7 +57,7 @@ const COLORS = [
 ];
 
 // Custom label para el pie chart que se muestra solo si hay espacio
-const renderCustomLabel = ({
+const renderCustomLabel = (labelFill: string) => ({
   cx,
   cy,
   midAngle,
@@ -75,7 +76,7 @@ const renderCustomLabel = ({
     <text
       x={x}
       y={y}
-      fill="#475569"
+      fill={labelFill}
       textAnchor={x > cx ? "start" : "end"}
       dominantBaseline="central"
       fontSize={11}
@@ -87,6 +88,19 @@ const renderCustomLabel = ({
 };
 
 export default function SalesCharts({ sales }: SalesChartsProps) {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
+  // Colores adaptados para ejes/grillas/tooltips de recharts (no soportan clases de Tailwind)
+  const chartColors = {
+    grid: isDark ? "#334155" : "#e2e8f0",
+    axisText: isDark ? "#94a3b8" : "#475569",
+    axisTextMuted: isDark ? "#64748b" : "#94a3b8",
+    tooltipBg: isDark ? "#1e293b" : "#ffffff",
+    tooltipText: isDark ? "#e2e8f0" : "#1e293b",
+    legendText: isDark ? "#cbd5e1" : "#475569",
+    cellStroke: isDark ? "#0f172a" : "#ffffff",
+  };
   // ─── Ventas por Producto (Pie Chart) ───
   const ventasPorProducto: Record<string, number> = {};
 
@@ -147,9 +161,9 @@ export default function SalesCharts({ sales }: SalesChartsProps) {
   return (
     <>
       {/* ─── Gráfico Torta: Ventas por Producto ─── */}
-      <Card className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden transition-all hover:shadow-md">
-        <CardHeader className="bg-slate-50/50 border-b border-slate-100/50 pb-4">
-          <CardTitle className="flex items-center gap-2 text-slate-800">
+      <Card className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden transition-all hover:shadow-md">
+        <CardHeader className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100/50 dark:border-slate-700/50 pb-4">
+          <CardTitle className="flex items-center gap-2 text-slate-800 dark:text-slate-100">
             <div className="p-1.5 bg-amber-100 rounded-lg">
               <ShoppingBag className="w-5 h-5 text-amber-600" />
             </div>
@@ -174,7 +188,7 @@ export default function SalesCharts({ sales }: SalesChartsProps) {
                     outerRadius={105}
                     innerRadius={50}
                     dataKey="value"
-                    label={renderCustomLabel}
+                    label={renderCustomLabel(chartColors.axisText)}
                     animationBegin={0}
                     animationDuration={800}
                     paddingAngle={2}
@@ -183,7 +197,7 @@ export default function SalesCharts({ sales }: SalesChartsProps) {
                       <Cell
                         key={`cell-prod-${index}`}
                         fill={COLORS[index % COLORS.length]}
-                        stroke="#fff"
+                        stroke={chartColors.cellStroke}
                         strokeWidth={2}
                       />
                     ))}
@@ -194,7 +208,8 @@ export default function SalesCharts({ sales }: SalesChartsProps) {
                       return [`${value} uds (${percent}%)`, props?.payload?.name];
                     }}
                     contentStyle={{
-                      backgroundColor: "#fff",
+                      backgroundColor: chartColors.tooltipBg,
+                      color: chartColors.tooltipText,
                       border: "none",
                       borderRadius: "12px",
                       boxShadow:
@@ -209,7 +224,7 @@ export default function SalesCharts({ sales }: SalesChartsProps) {
                     iconType="circle"
                     iconSize={8}
                     formatter={(value: string) => (
-                      <span style={{ color: "#475569", fontSize: "12px", fontWeight: 500 }}>
+                      <span style={{ color: chartColors.legendText, fontSize: "12px", fontWeight: 500 }}>
                         {value}
                       </span>
                     )}
@@ -222,11 +237,11 @@ export default function SalesCharts({ sales }: SalesChartsProps) {
       </Card>
 
       {/* ─── Gráfico Barras: Ventas por Usuario ─── */}
-      <Card className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden transition-all hover:shadow-md">
-        <CardHeader className="bg-slate-50/50 border-b border-slate-100/50 pb-4">
-          <CardTitle className="flex items-center gap-2 text-slate-800">
-            <div className="p-1.5 bg-indigo-100 rounded-lg">
-              <Users className="w-5 h-5 text-indigo-600" />
+      <Card className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden transition-all hover:shadow-md">
+        <CardHeader className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100/50 dark:border-slate-700/50 pb-4">
+          <CardTitle className="flex items-center gap-2 text-slate-800 dark:text-slate-100">
+            <div className="p-1.5 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg">
+              <Users className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
             </div>
             Ventas por Usuario
           </CardTitle>
@@ -272,19 +287,19 @@ export default function SalesCharts({ sales }: SalesChartsProps) {
                   <CartesianGrid
                     strokeDasharray="3 3"
                     vertical={false}
-                    stroke="#e2e8f0"
+                    stroke={chartColors.grid}
                   />
                   <XAxis
                     dataKey="name"
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: "#475569", fontSize: 12, fontWeight: 500 }}
+                    tick={{ fill: chartColors.axisText, fontSize: 12, fontWeight: 500 }}
                     dy={10}
                   />
                   <YAxis
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: "#94a3b8", fontSize: 12 }}
+                    tick={{ fill: chartColors.axisTextMuted, fontSize: 12 }}
                     allowDecimals={false}
                     dx={-5}
                     label={{
@@ -292,12 +307,14 @@ export default function SalesCharts({ sales }: SalesChartsProps) {
                       angle: -90,
                       position: "insideLeft",
                       offset: 15,
-                      style: { fill: "#94a3b8", fontSize: 11 },
+                      style: { fill: chartColors.axisTextMuted, fontSize: 11 },
                     }}
                   />
                   <Tooltip
                     cursor={{ fill: "rgba(99, 102, 241, 0.06)", radius: 8 }}
                     contentStyle={{
+                      backgroundColor: chartColors.tooltipBg,
+                      color: chartColors.tooltipText,
                       borderRadius: "12px",
                       border: "none",
                       boxShadow:
@@ -308,7 +325,7 @@ export default function SalesCharts({ sales }: SalesChartsProps) {
                       `${value} ${value === 1 ? "venta" : "ventas"}`,
                       "Cantidad",
                     ]}
-                    labelStyle={{ fontWeight: 600, color: "#1e293b" }}
+                    labelStyle={{ fontWeight: 600, color: chartColors.tooltipText }}
                   />
                   <Bar
                     dataKey="ventas"
@@ -316,7 +333,7 @@ export default function SalesCharts({ sales }: SalesChartsProps) {
                     animationDuration={800}
                     label={{
                       position: "top",
-                      fill: "#475569",
+                      fill: chartColors.axisText,
                       fontSize: 13,
                       fontWeight: 600,
                     }}
