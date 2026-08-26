@@ -47,7 +47,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 dark:from-slate-950 via-slate-900 dark:via-slate-950 to-gray-900 dark:to-slate-950 flex items-center justify-center p-4 relative overflow-hidden">
       {/* Animated background orbs */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div 
@@ -80,7 +80,7 @@ export default function Login() {
       <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.02%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%2230%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
 
       <motion.div 
-        className="w-full max-w-md relative z-10 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8"
+        className="w-full max-w-md relative z-10 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8"
         initial={{ opacity: 0, y: 30, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.6, type: "spring", stiffness: 200, damping: 20 }}
@@ -101,8 +101,8 @@ export default function Login() {
               <span className="text-white text-2xl font-bold">A</span>
             </motion.div>
           </div>
-          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Avaporu</h1>
-          <p className="text-gray-500 font-medium">Sistema de Gestión Integral</p>
+          <h1 className="text-3xl font-extrabold text-gray-900 dark:text-slate-100 tracking-tight">Avaporu</h1>
+          <p className="text-gray-500 dark:text-slate-400 font-medium">Sistema de Gestión Integral</p>
         </motion.div>
 
         {/* Formulario */}
@@ -113,7 +113,7 @@ export default function Login() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-slate-300">
               Email
             </label>
             <input
@@ -122,7 +122,7 @@ export default function Login() {
               placeholder="Ingrese su email"
               value={credentials.email}
               onChange={(e) => setCredentials(prev => ({ ...prev, email: e.target.value }))}
-              className="w-full h-12 px-4 border border-slate-200 rounded-xl shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-slate-50/50 transition-all outline-none"
+              className="w-full h-12 px-4 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-slate-50/50 dark:bg-slate-800/50 transition-all outline-none"
               required
             />
           </motion.div>
@@ -133,7 +133,7 @@ export default function Login() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-slate-300">
               Contraseña
             </label>
             <input
@@ -142,7 +142,7 @@ export default function Login() {
               placeholder="Ingrese su contraseña"
               value={credentials.password}
               onChange={(e) => setCredentials(prev => ({ ...prev, password: e.target.value }))}
-              className="w-full h-12 px-4 border border-slate-200 rounded-xl shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-slate-50/50 transition-all outline-none"
+              className="w-full h-12 px-4 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-slate-50/50 dark:bg-slate-800/50 transition-all outline-none"
               required
             />
           </motion.div>
@@ -172,7 +172,7 @@ export default function Login() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
           >
-            <a href="/register" className="text-sm text-gray-500 hover:text-emerald-600 transition-colors font-medium">
+            <a href="/register" className="text-sm text-gray-500 dark:text-slate-400 hover:text-emerald-600 hover:dark:text-emerald-400 transition-colors font-medium">
               ¿No tienes una cuenta? Regístrate
             </a>
           </motion.button>
@@ -180,14 +180,14 @@ export default function Login() {
 
         {/* Info demo */}
         <motion.div 
-          className="mt-8 text-center text-sm text-gray-400 space-y-1 border-t border-slate-200 pt-6"
+          className="mt-8 text-center text-sm text-gray-400 dark:text-slate-500 space-y-1 border-t border-slate-200 dark:border-slate-700 pt-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
         >
-          <p className="font-medium text-gray-500">Usuarios de prueba:</p>
-          <p><strong className="text-gray-600">gerente@gmail.com</strong> / <strong className="text-gray-600">encargado@gmail.com</strong></p>
-          <p>Contraseña: <strong className="text-gray-600">123456</strong></p>
+          <p className="font-medium text-gray-500 dark:text-slate-400">Usuarios de prueba:</p>
+          <p><strong className="text-gray-600 dark:text-slate-400">gerente@gmail.com</strong> / <strong className="text-gray-600 dark:text-slate-400">encargado@gmail.com</strong></p>
+          <p>Contraseña: <strong className="text-gray-600 dark:text-slate-400">123456</strong></p>
         </motion.div>
       </motion.div>
     </div>

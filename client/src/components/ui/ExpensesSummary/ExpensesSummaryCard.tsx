@@ -25,16 +25,16 @@ export const ExpensesSummaryCard: React.FC<Props> = ({ expenses }) => {
   const totalToday = todaysExpenses.reduce((acc, exp) => acc + exp.monto, 0);
 
   return (
-    <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-6">
-      <h1 className="text-lg font-semibold text-gray-700 mb-6">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-6">
+      <h1 className="text-lg font-semibold text-gray-700 dark:text-slate-300 mb-6">
         Gastos del día 📉
       </h1>
 
-      <p className="text-2xl font-bold text-red-600">
+      <p className="text-2xl font-bold text-red-600 dark:text-red-400">
         ${totalToday.toLocaleString()}
       </p>
 
-      <p className="text-sm text-gray-500 mt-1">
+      <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
         Gastos registrados hoy
       </p>
     </div>

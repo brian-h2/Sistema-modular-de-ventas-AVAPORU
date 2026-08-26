@@ -1,6 +1,7 @@
 // routes/AppRoutes.jsx
 import { Routes, Route, Outlet, Navigate } from "react-router-dom";
 import ProtectedRoute from "../routes/ProtectedRoute";
+import RoleRoute from "../routes/RoleRoute";
 import Navbar from "../components/ui/Navbar";
 import Dashboard from "../pages/Dashboard";
 import Login from "../pages/Auth/Login";
@@ -36,12 +37,15 @@ export default function AppRoutes() {
       {/* Todo lo demás con Navbar */}
       <Route element={<ProtectedRoute />}>
         <Route element={<MainLayout />}>
-          <Route path="/stock" element={<Stock />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/sales" element={<Sales />} />
+          <Route path="/stock" element={<Stock />} />
           <Route path="/expenses" element={<Expenses />} />
-          <Route path="/users" element={<Users />} />
-          <Route path="/reports" element={<ReportsModule />} />
+
+          <Route element={<RoleRoute allowedRoles={["Gerente", "Encargado"]} />}>
+            <Route path="/users" element={<Users />} />
+            <Route path="/reports" element={<ReportsModule />} />
+          </Route>
 
         </Route>
       </Route>

@@ -52,7 +52,7 @@ export default function Register() {
         }
     };
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 dark:from-slate-950 via-slate-900 dark:via-slate-950 to-gray-900 dark:to-slate-950 flex items-center justify-center p-4 relative overflow-hidden">
             {/* Animated background orbs */}
             <div className="absolute inset-0 overflow-hidden">
                 <motion.div 
@@ -77,7 +77,7 @@ export default function Register() {
             <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.02%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%2230%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
 
             <motion.div 
-                className="w-full max-w-md relative z-10 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8"
+                className="w-full max-w-md relative z-10 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8"
                 initial={{ opacity: 0, y: 30, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ duration: 0.6, type: "spring", stiffness: 200, damping: 20 }}
@@ -98,11 +98,11 @@ export default function Register() {
                             <span className="text-white text-2xl font-bold">A</span>
                         </motion.div>
                     </div>
-                    <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Avaporu</h1>
+                    <h1 className="text-3xl font-extrabold text-gray-900 dark:text-slate-100 tracking-tight">Avaporu</h1>
                 </motion.div>
 
                 <motion.h2 
-                    className="text-gray-500 text-center font-medium mt-2"
+                    className="text-gray-500 dark:text-slate-400 text-center font-medium mt-2"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.25 }}
@@ -116,10 +116,10 @@ export default function Register() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.3 }}
                     >
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Nombre</label>
                         <input
                             type="text"
-                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-slate-50/50 transition-all"
+                            className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-slate-50/50 dark:bg-slate-800/50 transition-all"
                             value={formData.username}
                             onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                             placeholder='Ingrese su nombre'
@@ -132,10 +132,10 @@ export default function Register() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.35 }}
                     >
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Contraseña</label>
                         <input
                             type="password"
-                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-slate-50/50 transition-all"
+                            className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-slate-50/50 dark:bg-slate-800/50 transition-all"
                             value={formData.password}
                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                             placeholder='Ingrese su contraseña'
@@ -148,10 +148,10 @@ export default function Register() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.4 }}
                     >
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Confirmar Contraseña</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Confirmar Contraseña</label>
                         <input
                             type="password"
-                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-slate-50/50 transition-all"
+                            className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-slate-50/50 dark:bg-slate-800/50 transition-all"
                             value={formData.confirmPassword}
                             onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                             placeholder='Ingrese su contraseña nuevamente'
@@ -164,10 +164,10 @@ export default function Register() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.45 }}
                     >
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Email</label>
                         <input
                             type="email"
-                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-slate-50/50 transition-all"
+                            className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-slate-50/50 dark:bg-slate-800/50 transition-all"
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                             placeholder='Ingrese su email'
@@ -200,7 +200,7 @@ export default function Register() {
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.6 }}
                     >
-                        <a href="/login" className="text-sm text-gray-500 hover:text-emerald-600 transition-colors font-medium">
+                        <a href="/login" className="text-sm text-gray-500 dark:text-slate-400 hover:text-emerald-600 hover:dark:text-emerald-400 transition-colors font-medium">
                             ¿Ya tienes una cuenta? Inicia sesión
                         </a>
                     </motion.button>

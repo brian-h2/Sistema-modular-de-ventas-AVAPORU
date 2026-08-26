@@ -164,7 +164,7 @@ export default function ExpensesModule() {
   };
 
   return (
-    <div className="p-4 sm:p-8 bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen flex flex-col gap-8 font-sans">
+    <div className="p-4 sm:p-8 bg-gradient-to-br from-slate-50 dark:from-slate-900 to-slate-100 dark:to-slate-800 min-h-screen flex flex-col gap-8 font-sans">
       {/* HEADER */}
       <motion.div
         initial={{ opacity: 0, x: -20 }}
@@ -174,12 +174,12 @@ export default function ExpensesModule() {
       >
         <div>
           <div className="flex items-center gap-3 mb-1">
-            <div className="p-2 bg-red-100 text-red-600 rounded-xl shadow-sm">
+            <div className="p-2 bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 rounded-xl shadow-sm">
               <Receipt className="w-6 h-6" />
             </div>
-            <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Gastos y Finanzas</h1>
+            <h1 className="text-4xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">Gastos y Finanzas</h1>
           </div>
-          <p className="text-lg text-slate-500 font-medium mt-2">Control financiero basado en datos reales</p>
+          <p className="text-lg text-slate-500 dark:text-slate-400 font-medium mt-2">Control financiero basado en datos reales</p>
         </div>
         <motion.button
           onClick={() => setIsDialogOpen(true)}
@@ -201,47 +201,47 @@ export default function ExpensesModule() {
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="bg-white p-6 rounded-2xl w-full max-w-lg shadow-2xl border border-slate-100"
+              className="bg-white dark:bg-slate-900 p-6 rounded-2xl w-full max-w-lg shadow-2xl border border-slate-100 dark:border-slate-700"
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
             >
-              <h2 className="text-2xl font-bold text-gray-900">Registrar Nuevo Gasto</h2>
-              <p className="text-gray-600 mb-6">Complete los campos para registrar un nuevo gasto.</p>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Registrar Nuevo Gasto</h2>
+              <p className="text-gray-600 dark:text-slate-400 mb-6">Complete los campos para registrar un nuevo gasto.</p>
 
               <div className="space-y-4">
 
                 {/* Fecha - Monto */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">Fecha *</label>
+                    <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-slate-300">Fecha *</label>
                     <input
                       type="date"
                       value={newExpense.date}
                       onChange={(e) => setNewExpense({ ...newExpense, date: e.target.value })}
-                      className="w-full border border-slate-200 p-2.5 rounded-lg bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-colors"
+                      className="w-full border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg bg-slate-50/50 dark:bg-slate-800/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-colors"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">Monto *</label>
+                    <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-slate-300">Monto *</label>
                     <input
                       type="number"
                       value={newExpense.monto}
                       onChange={(e) => setNewExpense({ ...newExpense, monto: e.target.value })}
-                      className="w-full border border-slate-200 p-2.5 rounded-lg bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-colors"
+                      className="w-full border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg bg-slate-50/50 dark:bg-slate-800/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-colors"
                     />
                   </div>
                 </div>
 
                 {/* Categoría */}
                 <div>
-                  <label className="block text-sm font-medium mb-1">Categoría *</label>
+                  <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-slate-300">Categoría *</label>
                   <select
                     value={newExpense.categoria}
                     onChange={(e) => setNewExpense({ ...newExpense, categoria: e.target.value })}
-                    className="w-full border border-slate-200 p-2.5 rounded-lg bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-colors"
+                    className="w-full border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg bg-slate-50/50 dark:bg-slate-800/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-colors"
                   >
                     <option value="">Seleccionar categoría</option>
                     {expenseCategories.map((c) => (
@@ -252,23 +252,23 @@ export default function ExpensesModule() {
 
                 {/* Descripción */}
                 <div>
-                  <label className="block text-sm font-medium mb-1">Descripción *</label>
+                  <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-slate-300">Descripción *</label>
                   <input
                     type="text"
                     value={newExpense.description}
                     onChange={(e) => setNewExpense({ ...newExpense, description: e.target.value })}
-                    className="w-full border border-slate-200 p-2.5 rounded-lg bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-colors"
+                    className="w-full border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg bg-slate-50/50 dark:bg-slate-800/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-colors"
                   />
                 </div>
 
                 {/* Presupuesto */}
                 <div>
-                  <label className="block text-sm font-medium mb-1">Presupuesto Disponible *</label>
+                  <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-slate-300">Presupuesto Disponible *</label>
                   <input
                     type="number"
                     value={newExpense.presupuestoDisponible}
                     onChange={(e) => setNewExpense({ ...newExpense, presupuestoDisponible: e.target.value })}
-                    className="w-full border border-slate-200 p-2.5 rounded-lg bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-colors"
+                    className="w-full border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg bg-slate-50/50 dark:bg-slate-800/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-colors"
                   />
                 </div>
 
@@ -276,7 +276,7 @@ export default function ExpensesModule() {
                 <div className="flex gap-3 pt-4">
                   <motion.button
                     onClick={() => setIsDialogOpen(false)}
-                    className="flex-1 border border-slate-300 p-2.5 rounded-xl hover:bg-slate-50 transition-colors font-medium"
+                    className="flex-1 border border-slate-300 dark:border-slate-600 p-2.5 rounded-xl hover:bg-slate-50 hover:dark:bg-slate-950 transition-colors font-medium"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
@@ -306,56 +306,56 @@ export default function ExpensesModule() {
         className="grid grid-cols-1 md:grid-cols-4 gap-4"
       >
         <motion.div variants={itemVariants}>
-          <Card className="bg-white shadow-sm rounded-xl border border-slate-100 transition-all hover:-translate-y-1 hover:shadow-md">
+          <Card className="bg-white dark:bg-slate-900 shadow-sm rounded-xl border border-slate-100 dark:border-slate-700 transition-all hover:-translate-y-1 hover:shadow-md">
             <CardContent className="p-6 flex items-center gap-3">
-              <div className="p-2 bg-red-100 rounded-lg">
-                <DollarSign className="w-7 h-7 text-red-500" />
+              <div className="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg">
+                <DollarSign className="w-7 h-7 text-red-500 dark:text-red-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-red-600">${totalSpent.toLocaleString()}</p>
-                <p className="text-sm text-slate-500">Gastos Totales</p>
+                <p className="text-2xl font-bold text-red-600 dark:text-red-400">${totalSpent.toLocaleString()}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Gastos Totales</p>
               </div>
             </CardContent>
           </Card>
         </motion.div>
 
         <motion.div variants={itemVariants}>
-          <Card className="bg-white shadow-sm rounded-xl border border-slate-100 transition-all hover:-translate-y-1 hover:shadow-md">
+          <Card className="bg-white dark:bg-slate-900 shadow-sm rounded-xl border border-slate-100 dark:border-slate-700 transition-all hover:-translate-y-1 hover:shadow-md">
             <CardContent className="p-6 flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <FileText className="w-7 h-7 text-blue-500" />
+              <div className="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
+                <FileText className="w-7 h-7 text-blue-500 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold">${totalBudget.toLocaleString()}</p>
-                <p className="text-sm text-slate-500">Presupuestos Declarados</p>
+                <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">${totalBudget.toLocaleString()}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Presupuestos Declarados</p>
               </div>
             </CardContent>
           </Card>
         </motion.div>
 
         <motion.div variants={itemVariants}>
-          <Card className="bg-white shadow-sm rounded-xl border border-slate-100 transition-all hover:-translate-y-1 hover:shadow-md">
+          <Card className="bg-white dark:bg-slate-900 shadow-sm rounded-xl border border-slate-100 dark:border-slate-700 transition-all hover:-translate-y-1 hover:shadow-md">
             <CardContent className="p-6 flex items-center gap-3">
-              <div className={'p-2 rounded-lg ' + (budgetUsage > 90 ? 'bg-red-100' : 'bg-emerald-100')}>
-                {budgetUsage > 90 ? <TrendingUp className="w-7 h-7 text-red-500" /> : <TrendingDown className="w-7 h-7 text-emerald-500" />}
+              <div className={'p-2 rounded-lg ' + (budgetUsage > 90 ? 'bg-red-100 dark:bg-red-900/40' : 'bg-emerald-100 dark:bg-emerald-900/40')}>
+                {budgetUsage > 90 ? <TrendingUp className="w-7 h-7 text-red-500 dark:text-red-400" /> : <TrendingDown className="w-7 h-7 text-emerald-500 dark:text-emerald-400" />}
               </div>
               <div>
-                <p className="text-2xl font-bold">{budgetUsage.toFixed(1)}%</p>
-                <p className="text-sm text-slate-500">Uso del Presupuesto</p>
+                <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{budgetUsage.toFixed(1)}%</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Uso del Presupuesto</p>
               </div>
             </CardContent>
           </Card>
         </motion.div>
 
         <motion.div variants={itemVariants}>
-          <Card className="bg-white shadow-sm rounded-xl border border-slate-100 transition-all hover:-translate-y-1 hover:shadow-md">
+          <Card className="bg-white dark:bg-slate-900 shadow-sm rounded-xl border border-slate-100 dark:border-slate-700 transition-all hover:-translate-y-1 hover:shadow-md">
             <CardContent className="p-6 flex items-center gap-3">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <Calendar className="w-7 h-7 text-purple-500" />
+              <div className="p-2 bg-purple-100 dark:bg-purple-900/40 rounded-lg">
+                <Calendar className="w-7 h-7 text-purple-500 dark:text-purple-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{expenses.length}</p>
-                <p className="text-sm text-slate-500">Gastos Registrados</p>
+                <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{expenses.length}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Gastos Registrados</p>
               </div>
             </CardContent>
           </Card>
@@ -372,11 +372,11 @@ export default function ExpensesModule() {
 
         {/* PRESUPUESTO vs GASTOS */}
         <motion.div variants={itemVariants} className="lg:col-span-2">
-          <Card className="bg-white shadow-sm rounded-2xl border border-slate-100 p-6 mb-6 transition-all hover:shadow-md">
+          <Card className="bg-white dark:bg-slate-900 shadow-sm rounded-2xl border border-slate-100 dark:border-slate-700 p-6 mb-6 transition-all hover:shadow-md">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <div className="p-1.5 bg-emerald-100 rounded-lg">
-                  <TrendingUp className="w-5 h-5 text-emerald-600" />
+              <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
+                <div className="p-1.5 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg">
+                  <TrendingUp className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
                 Presupuesto vs Gastos
               </CardTitle>
@@ -398,11 +398,11 @@ export default function ExpensesModule() {
           </Card>
 
           {/* DISTRIBUCIÓN POR CATEGORÍA */}
-          <Card className="bg-white shadow-sm rounded-2xl border border-slate-100 p-6 transition-all hover:shadow-md">
+          <Card className="bg-white dark:bg-slate-900 shadow-sm rounded-2xl border border-slate-100 dark:border-slate-700 p-6 transition-all hover:shadow-md">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <div className="p-1.5 bg-blue-100 rounded-lg">
-                  <FileText className="w-5 h-5 text-blue-600" />
+              <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
+                <div className="p-1.5 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
+                  <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 </div>
                 Distribución por Categoría
               </CardTitle>
@@ -429,11 +429,11 @@ export default function ExpensesModule() {
 
         {/* ESTADO POR CATEGORÍA */}
         <motion.div variants={itemVariants}>
-          <Card className="bg-white shadow-sm rounded-2xl border border-slate-100 p-6 transition-all hover:shadow-md">
+          <Card className="bg-white dark:bg-slate-900 shadow-sm rounded-2xl border border-slate-100 dark:border-slate-700 p-6 transition-all hover:shadow-md">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <div className="p-1.5 bg-emerald-100 rounded-lg">
-                  <TrendingUp className="w-5 h-5 text-emerald-600" />
+              <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
+                <div className="p-1.5 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg">
+                  <TrendingUp className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
                 Estado por Categoría
               </CardTitle>
@@ -447,17 +447,17 @@ export default function ExpensesModule() {
                   transition={{ delay: i * 0.05 }}
                 >
                   <div className="flex justify-between text-sm mb-1">
-                    <span className="font-medium flex items-center gap-1.5">
+                    <span className="font-medium flex items-center gap-1.5 text-slate-900 dark:text-slate-100">
                       <span
                         className="inline-block w-3 h-3 rounded-full"
                         style={{ backgroundColor: cat.color }}
                       ></span>
                       {cat.name}
                     </span>
-                    <span className="font-semibold">{cat.percent.toFixed(1)}%</span>
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">{cat.percent.toFixed(1)}%</span>
                   </div>
 
-                  <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
+                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
                     <motion.div
                       className="h-3 rounded-full"
                       style={{ backgroundColor: cat.color }}
@@ -472,26 +472,26 @@ export default function ExpensesModule() {
           </Card>
 
           {/* GASTOS REGISTRADOS */}
-          <Card className="bg-white shadow-sm rounded-2xl border border-slate-100 p-6 mt-6 transition-all hover:shadow-md">
-            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <CardTitle className="flex items-center gap-2">
+          <Card className="bg-white dark:bg-slate-900 shadow-sm rounded-2xl border border-slate-100 dark:border-slate-700 p-6 mt-6 transition-all hover:shadow-md">
+            <CardHeader className="flex flex-col gap-4">
+              <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
                 <div className="p-1.5 bg-amber-100 rounded-lg">
                   <Receipt className="w-5 h-5 text-amber-600" />
                 </div>
                 Gastos Registrados
               </CardTitle>
-              <div className="flex flex-col sm:flex-row gap-2">
+              <div className="flex flex-col gap-2">
                 <input
                   type="text"
                   placeholder="Buscar descripción..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-3 py-1.5 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
                 <select
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white"
+                  className="w-full px-3 py-1.5 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white dark:bg-slate-900"
                 >
                   <option value="TODAS">Todas las categorías</option>
                   {expenseCategories.map(cat => (
@@ -508,26 +508,26 @@ export default function ExpensesModule() {
               }).map((exp, i) => (
                 <motion.div
                   key={exp._id}
-                  className="border border-slate-200 rounded-xl p-3 hover:shadow-sm transition-all bg-slate-50/30"
+                  className="border border-slate-200 dark:border-slate-700 rounded-xl p-3 hover:shadow-sm transition-all bg-slate-50/30 dark:bg-slate-800/30"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.03 }}
                 >
                   <div className="flex justify-between">
                     <div>
-                      <p className="font-medium text-sm">{exp.description}</p>
-                      <p className="text-xs text-gray-600">{getCategoryName(exp.categoria)}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="font-medium text-sm text-slate-900 dark:text-slate-100">{exp.description}</p>
+                      <p className="text-xs text-gray-600 dark:text-slate-400">{getCategoryName(exp.categoria)}</p>
+                      <p className="text-xs text-gray-500 dark:text-slate-400">
                         {new Date(exp.fecha).toLocaleDateString("es-ES")}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-red-600">
+                      <p className="font-bold text-red-600 dark:text-red-400">
                         ${exp.monto.toLocaleString()}
                       </p>
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-xs text-gray-500 dark:text-slate-400 mt-2">
                     Presupuesto: ${exp.presupuestoDisponible.toLocaleString()}
                   </p>
                 </motion.div>

@@ -41,9 +41,9 @@ export default function SalesCategory({ sales }: { sales: Sale[] }) {
   }));
 
   return (
-    <Card className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-6">
+    <Card className="bg-white dark:bg-slate-900 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-6">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
           <Target className="w-5 h-5 text-[#10b981]" />
           Ventas por Categoría
         </CardTitle>
