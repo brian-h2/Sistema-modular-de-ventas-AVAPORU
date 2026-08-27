@@ -2,9 +2,16 @@ import "dotenv/config";
 import dns from "node:dns";
 import nodemailer from "nodemailer";
 
-// Forzar resolución IPv4 primero para evitar errores ENETUNREACH en plataformas en la nube (Railway, Docker, Render)
 if (dns.setDefaultResultOrder) {
   dns.setDefaultResultOrder("ipv4first");
+}
+
+function ipv4Lookup(hostname, options, callback) {
+  if (typeof options === "function") {
+    callback = options;
+    options = {};
+  }
+  return dns.lookup(hostname, { ...options, family: 4, all: false }, callback);
 }
 
 let transporter = null;
@@ -32,25 +39,21 @@ export async function getTransporter() {
 
   console.log(`📡 [Mailer] Inicializando SMTP (${host}:${port}) para ${user}`);
 
-  const isGmail = host.includes("gmail");
+  const isSecure = port === 465;
 
   transporter = nodemailer.createTransport({
-    ...(isGmail && port === 465
-      ? {
-          service: "gmail",
-        }
-      : {
-          host,
-          port,
-          secure: port === 465,
-        }),
+    host,
+    port,
+    secure: isSecure,
+    requireTLS: !isSecure,
     auth: { user, pass },
-    family: 4, // Forzar IPv4 para evitar ENETUNREACH en contenedores
+    lookup: ipv4Lookup,
     connectionTimeout: 10000, // 10 segundos max para handshake
     greetingTimeout: 10000,
     socketTimeout: 15000,    // 15 segundos max para socket
     tls: {
       rejectUnauthorized: false,
+      servername: host,
     },
   });
 
