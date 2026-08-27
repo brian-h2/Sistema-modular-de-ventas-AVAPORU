@@ -9,7 +9,7 @@ export async function createSale(req, res) {
   try {
 
     const { productos: items } = req.body;
-    const { cliente, total, fecha } = req.body;
+    const { cliente, total, fecha, metodoPago = "EFECTIVO" } = req.body;
 
     if (!items.length) return res.status(400).json({ error: "Sin items" });
 
@@ -53,8 +53,21 @@ export async function createSale(req, res) {
 
     }
 
-    // const total = mapeados.reduce((acc, it) => acc + it.subtotal, 0);
-    const venta = await Sale.create({ items: mapeados, total, cliente, vendedor: req.user.id });
+    const esMercadoPago = metodoPago === "MERCADO_PAGO";
+
+    const estadoInicial = esMercadoPago ? "CREADA" : "PAGADA";
+    const pagoInicial = esMercadoPago
+      ? { metodo: "MERCADO_PAGO", estado: "PENDIENTE" }
+      : { metodo: metodoPago, estado: "APROBADO", fechaPago: new Date() };
+
+    const venta = await Sale.create({
+      items: mapeados,
+      total,
+      cliente,
+      vendedor: req.user.id,
+      estado: estadoInicial,
+      pago: pagoInicial,
+    });
 
     // Descontar stock
     await Promise.all(

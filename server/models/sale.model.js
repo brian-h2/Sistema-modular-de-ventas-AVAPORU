@@ -66,6 +66,9 @@ const paymentSchema =
         enum: [
           "MERCADO_PAGO",
           "EFECTIVO",
+          "TRANSFERENCIA",
+          "TARJETA_DEBITO",
+          "TARJETA_CREDITO",
           "OTRO"
         ]
       },

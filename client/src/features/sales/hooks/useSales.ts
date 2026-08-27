@@ -38,14 +38,9 @@ export function useSales() {
   const handleCreateSale = async (saleData: any) => {
     try {
       setLoading(true);
-      await createSale(saleData);
-      Swal.fire({
-        icon: "success",
-        title: "Venta registrada",
-        text: "La venta ha sido creada exitosamente.",
-      });
+      const createdSale = await createSale(saleData);
       await fetchSales();
-      return true;
+      return { success: true, sale: createdSale };
     } catch (error: any) {
       const msg = error?.response?.data?.error || error?.message || "Ocurrió un error al crear la venta.";
       Swal.fire({
@@ -53,7 +48,7 @@ export function useSales() {
         title: "No se pudo registrar la venta",
         text: msg,
       });
-      return false;
+      return { success: false, error: msg };
     } finally {
       setLoading(false);
     }

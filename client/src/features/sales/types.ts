@@ -17,6 +17,9 @@ export interface PaymentInfo {
   metodo?:
     | "MERCADO_PAGO"
     | "EFECTIVO"
+    | "TRANSFERENCIA"
+    | "TARJETA_DEBITO"
+    | "TARJETA_CREDITO"
     | "OTRO";
 
   estado?:
