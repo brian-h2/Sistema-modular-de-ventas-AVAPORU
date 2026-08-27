@@ -78,13 +78,14 @@ app.use(
 
 app.use(
   cors({
-    origin:
-      process.env.CORS_ORIGIN
-        ?.split(",") ||
-      "*",
-
-    credentials:
-      true
+    origin: (origin, callback) => {
+      // Permite solicitudes sin origen (mobile/Postman) o cualquier origen web devolviendo el origen del cliente
+      if (!origin) return callback(null, true);
+      return callback(null, true);
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   })
 );
 

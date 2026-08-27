@@ -56,12 +56,12 @@ export default function ProductsStockList({ products }: ProductsStockListProps) 
                   <p className="font-bold text-slate-900 dark:text-slate-100">{prod.stockDisponible}</p>
                     <span
                         className={`inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium ${
-                          prod.stockDisponible <= 5
+                          prod.stockDisponible === 0
                             ? "bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-400 border-red-300"
                             : "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-400 border-yellow-300"
                         }`}
                       >
-                        {prod.stockDisponible  <= 5 ? "Crítico" : "Bajo"}
+                        {prod.stockDisponible === 0 ? "Sin Stock" : "Crítico"}
                     </span>
                   </div>
               </div>
