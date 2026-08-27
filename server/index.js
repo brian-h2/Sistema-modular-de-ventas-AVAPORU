@@ -1,60 +1,224 @@
 import "dotenv/config";
+
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
-import mongoose from "mongoose";
-import { connectDB } from "./db.js";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
 
-import productsRouter from "./routes/products.routes.js";
-import salesRouter from "./routes/sales.routes.js";
-import expensesRouter from "./routes/expenses.routes.js";
-import authRouter from "./routes/auth.routes.js";
-import reportesRouter from "./routes/reports.routes.js";
-import scheduledReportsRouter from "./routes/scheduledReports.routes.js";
-import { authRequired, requireRole } from "./middlewares/auth.middleware.js";
-import { iniciarSchedulerReportes } from "./services/scheduler.js";
-
-dotenv.config();
-
-const app = express();
-
-// Cargar swagger
-const swaggerDocument = YAML.load("swagger.yaml");
-
-//Ruta de swagger
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+import {
+  connectDB
+} from "./db.js";
 
 
-// Middlewares
-app.use(cors());
-app.use(express.json());
+import productsRouter
+  from "./routes/products.routes.js";
 
-// Rutas ejemplo
-app.get("/", (req, res) => {
-  res.send("API funcionando 🚀");
-});
+import salesRouter
+  from "./routes/sales.routes.js";
+
+import expensesRouter
+  from "./routes/expenses.routes.js";
+
+import authRouter
+  from "./routes/auth.routes.js";
+
+import reportesRouter
+  from "./routes/reports.routes.js";
+
+import scheduledReportsRouter
+  from "./routes/scheduledReports.routes.js";
+
+import paymentsRoutes
+  from "./routes/payments.routes.js";
+
+import invoicesRoutes
+  from "./routes/invoices.routes.js";
 
 
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, async () => {
-  await connectDB(process.env.MONGODB_URI);
-  console.log(`🚀 API en http://localhost:${PORT}`);
-  iniciarSchedulerReportes();
-});
+import {
+  authRequired
+} from "./middlewares/auth.middleware.js";
 
-app.use(cors({
-  origin: process.env.CORS_ORIGIN?.split(",") || "*",
-  credentials: true
-}));
 
-app.get("/health", (req, res) => res.json({ ok: true }));
+import {
+  iniciarSchedulerReportes
+} from "./services/scheduler.js";
 
-app.use("/auth", authRouter);
- 
-app.use("/products", authRequired, productsRouter);
-app.use("/sales",    authRequired, salesRouter);
-app.use("/expenses", authRequired, expensesRouter);
-app.use("/reportes", authRequired, reportesRouter);
-app.use("/scheduled-reports", authRequired, scheduledReportsRouter);
+
+const app =
+  express();
+
+
+/*
+ * ============================================================
+ * SWAGGER
+ * ============================================================
+ */
+
+const swaggerDocument =
+  YAML.load(
+    "swagger.yaml"
+  );
+
+
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(
+    swaggerDocument
+  )
+);
+
+
+/*
+ * ============================================================
+ * MIDDLEWARES
+ * ============================================================
+ */
+
+app.use(
+  cors({
+    origin:
+      process.env.CORS_ORIGIN
+        ?.split(",") ||
+      "*",
+
+    credentials:
+      true
+  })
+);
+
+
+app.use(
+  express.json()
+);
+
+
+/*
+ * ============================================================
+ * RUTAS PÚBLICAS
+ * ============================================================
+ */
+
+app.get(
+  "/",
+  (req, res) => {
+    res.send(
+      "API funcionando 🚀"
+    );
+  }
+);
+
+
+app.get(
+  "/health",
+  (req, res) =>
+    res.json({
+      ok: true
+    })
+);
+
+
+app.use(
+  "/auth",
+  authRouter
+);
+
+
+/*
+ * ============================================================
+ * RUTAS DEL SISTEMA
+ * ============================================================
+ */
+
+app.use(
+  "/products",
+  authRequired,
+  productsRouter
+);
+
+
+app.use(
+  "/sales",
+  authRequired,
+  salesRouter
+);
+
+
+app.use(
+  "/expenses",
+  authRequired,
+  expensesRouter
+);
+
+
+/*
+ * Mercado Pago maneja internamente
+ * qué rutas requieren autenticación.
+ *
+ * El webhook debe quedar público.
+ */
+app.use(
+  "/payments",
+  paymentsRoutes
+);
+
+
+/*
+ * Comprobantes internos.
+ */
+app.use(
+  "/invoices",
+  invoicesRoutes
+);
+
+
+app.use(
+  "/reportes",
+  authRequired,
+  reportesRouter
+);
+
+
+app.use(
+  "/scheduled-reports",
+  authRequired,
+  scheduledReportsRouter
+);
+
+
+/*
+ * ============================================================
+ * INICIAR SERVIDOR
+ * ============================================================
+ */
+
+const PORT =
+  process.env.PORT ||
+  4000;
+
+
+app.listen(
+  PORT,
+  async () => {
+    try {
+      await connectDB(
+        process.env.MONGODB_URI
+      );
+
+
+      console.log(
+        `🚀 API en http://localhost:${PORT}`
+      );
+
+
+      iniciarSchedulerReportes();
+
+    } catch (error) {
+      console.error(
+        "Error iniciando servidor:",
+        error
+      );
+    }
+  }
+);
