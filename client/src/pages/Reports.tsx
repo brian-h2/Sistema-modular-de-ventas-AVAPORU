@@ -776,8 +776,16 @@ export function ReportsModule() {
 
   const handleSendScheduleNow = async (id: string) => {
     try {
+      Swal.fire({
+        title: "Enviando reporte...",
+        text: "Generando datos y enviando correo...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
       const res = await sendScheduledReportNow(id);
-      Swal.fire("Enviado", res.message || "Reporte enviado", "success");
+      Swal.fire("¡Enviado!", res.message || "Reporte enviado con éxito al correo", "success");
       fetchScheduledReports();
     } catch (err: any) {
       Swal.fire("Error", err?.response?.data?.error || "No se pudo enviar el reporte", "error");
