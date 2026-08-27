@@ -1,5 +1,11 @@
 import "dotenv/config";
+import dns from "node:dns";
 import nodemailer from "nodemailer";
+
+// Forzar resolución IPv4 primero para evitar errores ENETUNREACH en plataformas en la nube (Railway, Docker, Render)
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder("ipv4first");
+}
 
 let transporter = null;
 
@@ -39,9 +45,10 @@ export async function getTransporter() {
           secure: port === 465,
         }),
     auth: { user, pass },
-    connectionTimeout: 8000, // 8 segundos max para handshake
-    greetingTimeout: 8000,
-    socketTimeout: 12000,    // 12 segundos max para socket
+    family: 4, // Forzar IPv4 para evitar ENETUNREACH en contenedores
+    connectionTimeout: 10000, // 10 segundos max para handshake
+    greetingTimeout: 10000,
+    socketTimeout: 15000,    // 15 segundos max para socket
     tls: {
       rejectUnauthorized: false,
     },
