@@ -1,129 +1,239 @@
 import mongoose from "mongoose";
 
-const saleItemSchema = new mongoose.Schema({
-  product: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Product",
-    required: true
-  },
 
-  sku: {
-    type: String,
-    required: true
-  },
+/*
+ * ============================================================
+ * ITEMS DE LA VENTA
+ * ============================================================
+ */
 
-  nombre: {
-    type: String,
-    required: true
-  },
+const saleItemSchema =
+  new mongoose.Schema(
+    {
+      product: {
+        type:
+          mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+        required: true
+      },
 
-  cantidad: {
-    type: Number,
-    required: true,
-    min: 1
-  },
+      sku: {
+        type: String,
+        required: true
+      },
 
-  precioUnitario: {
-    type: Number,
-    required: true,
-    min: 0
-  },
+      nombre: {
+        type: String,
+        required: true
+      },
 
-  subtotal: {
-    type: Number,
-    required: true,
-    min: 0
-  }
+      cantidad: {
+        type: Number,
+        required: true,
+        min: 1
+      },
 
-}, { _id: false });
+      precioUnitario: {
+        type: Number,
+        required: true,
+        min: 0
+      },
 
-
-const paymentSchema = new mongoose.Schema({
-
-  metodo: {
-    type: String,
-    enum: [
-      "MERCADO_PAGO",
-      "EFECTIVO",
-      "OTRO"
-    ]
-  },
-
-  estado: {
-    type: String,
-    enum: [
-      "PENDIENTE",
-      "APROBADO",
-      "RECHAZADO",
-      "CANCELADO"
-    ],
-    default: "PENDIENTE"
-  },
-
-  preferenceId: {
-    type: String
-  },
-
-  paymentId: {
-    type: String
-  },
-
-  fechaPago: {
-    type: Date
-  }
-
-}, { _id: false });
+      subtotal: {
+        type: Number,
+        required: true,
+        min: 0
+      }
+    },
+    {
+      _id: false
+    }
+  );
 
 
-const saleSchema = new mongoose.Schema({
+/*
+ * ============================================================
+ * INFORMACIÓN DEL PAGO
+ * ============================================================
+ */
 
-  fecha: {
-    type: Date,
-    default: Date.now
-  },
+const paymentSchema =
+  new mongoose.Schema(
+    {
+      metodo: {
+        type: String,
 
-  cliente: {
-    type: String
-  },
+        enum: [
+          "MERCADO_PAGO",
+          "EFECTIVO",
+          "OTRO"
+        ]
+      },
 
-  vendedor: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User"
-  },
+      estado: {
+        type: String,
 
-  items: {
-    type: [saleItemSchema],
-    required: true
-  },
+        enum: [
+          "PENDIENTE",
+          "APROBADO",
+          "RECHAZADO",
+          "CANCELADO"
+        ],
 
-  total: {
-    type: Number,
-    required: true,
-    min: 0
-  },
+        default:
+          "PENDIENTE"
+      },
 
-  estado: {
-    type: String,
-    enum: [
-      "CREADA",
-      "PAGADA",
-      "FACTURADA",
-      "CANCELADA"
-    ],
-    default: "CREADA"
-  },
+      preferenceId: {
+        type: String
+      },
 
-  pago: {
-    type: paymentSchema,
-    default: undefined
-  }
+      paymentId: {
+        type: String
+      },
 
-}, {
-  timestamps: true
-});
+      fechaPago: {
+        type: Date
+      }
+    },
+    {
+      _id: false
+    }
+  );
 
 
-export default mongoose.models.Sale ||
+/*
+ * ============================================================
+ * COMPROBANTE INTERNO
+ * ============================================================
+ *
+ * IMPORTANTE:
+ *
+ * No representa una factura fiscal de ARCA.
+ *
+ * Es un comprobante interno generado por AVAPORU
+ * para documentar una venta ya pagada.
+ */
+
+const invoiceSchema =
+  new mongoose.Schema(
+    {
+      numero: {
+        type: String,
+        required: true
+      },
+
+      fechaEmision: {
+        type: Date,
+        default: Date.now
+      },
+
+      tipo: {
+        type: String,
+        default:
+          "COMPROBANTE_VENTA"
+      },
+
+      condicionCliente: {
+        type: String,
+        default:
+          "Consumidor Final"
+      },
+
+      validezFiscal: {
+        type: Boolean,
+        default: false
+      }
+    },
+    {
+      _id: false
+    }
+  );
+
+
+/*
+ * ============================================================
+ * VENTA
+ * ============================================================
+ */
+
+const saleSchema =
+  new mongoose.Schema(
+    {
+      fecha: {
+        type: Date,
+        default: Date.now
+      },
+
+      cliente: {
+        type: String
+      },
+
+      vendedor: {
+        type:
+          mongoose.Schema.Types.ObjectId,
+
+        ref: "User"
+      },
+
+      items: {
+        type: [
+          saleItemSchema
+        ],
+
+        required: true
+      },
+
+      total: {
+        type: Number,
+        required: true,
+        min: 0
+      },
+
+      estado: {
+        type: String,
+
+        enum: [
+          "CREADA",
+          "PAGADA",
+          "FACTURADA",
+          "CANCELADA"
+        ],
+
+        default:
+          "CREADA"
+      },
+
+      /*
+       * Información proveniente de Mercado Pago.
+       */
+      pago: {
+        type:
+          paymentSchema,
+
+        default:
+          undefined
+      },
+
+      /*
+       * Comprobante interno AVAPORU.
+       */
+      factura: {
+        type:
+          invoiceSchema,
+
+        default:
+          undefined
+      }
+    },
+    {
+      timestamps: true
+    }
+  );
+
+
+export default
+  mongoose.models.Sale ||
   mongoose.model(
     "Sale",
     saleSchema

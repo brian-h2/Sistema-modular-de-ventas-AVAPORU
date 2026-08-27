@@ -295,6 +295,228 @@ export default function SalesList({
       }
     };
 
+/*
+ * ============================================================
+ * GENERAR COMPROBANTE
+ * ============================================================
+ */
+
+const generarComprobante =
+  async (
+    saleId: string
+  ) => {
+    try {
+      const token =
+        localStorage.getItem(
+          "token"
+        );
+
+
+      if (!token) {
+        alert(
+          "No se encontró el token de sesión."
+        );
+
+        return;
+      }
+
+
+      const apiUrl =
+        import.meta.env
+          .VITE_API_URL;
+
+
+      const response =
+        await fetch(
+          `${apiUrl}/invoices/${saleId}/generate`,
+          {
+            method:
+              "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+
+              Authorization:
+                `Bearer ${token}`
+            }
+          }
+        );
+
+
+      const data =
+        await response.json();
+
+
+      if (
+        !response.ok
+      ) {
+        throw new Error(
+          data.message ||
+          "No se pudo generar el comprobante"
+        );
+      }
+
+
+      alert(
+        `Comprobante generado correctamente.\n\nNúmero: ${data.factura.numero}`
+      );
+
+
+      /*
+       * Recargamos para que el estado que viene
+       * de MongoDB pase a FACTURADA.
+       */
+      window.location.reload();
+
+    } catch (error) {
+      console.error(
+        "Error generando comprobante:",
+        error
+      );
+
+
+      alert(
+        error instanceof Error
+          ? error.message
+          : "No se pudo generar el comprobante"
+      );
+    }
+  };
+
+
+/*
+ * ============================================================
+ * DESCARGAR COMPROBANTE
+ * ============================================================
+ */
+
+const descargarComprobante =
+  async (
+    saleId: string
+  ) => {
+    try {
+      const token =
+        localStorage.getItem(
+          "token"
+        );
+
+
+      if (!token) {
+        alert(
+          "No se encontró el token de sesión."
+        );
+
+        return;
+      }
+
+
+      const apiUrl =
+        import.meta.env
+          .VITE_API_URL;
+
+
+      const response =
+        await fetch(
+          `${apiUrl}/invoices/${saleId}/pdf`,
+          {
+            method:
+              "GET",
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`
+            }
+          }
+        );
+
+
+      if (
+        !response.ok
+      ) {
+        let mensaje =
+          "No se pudo descargar el comprobante";
+
+
+        try {
+          const data =
+            await response.json();
+
+          mensaje =
+            data.message ||
+            mensaje;
+
+        } catch {
+          // La respuesta no era JSON.
+        }
+
+
+        throw new Error(
+          mensaje
+        );
+      }
+
+
+      /*
+       * Convertimos la respuesta en archivo.
+       */
+      const blob =
+        await response.blob();
+
+
+      const url =
+        window.URL
+          .createObjectURL(
+            blob
+          );
+
+
+      const link =
+        document.createElement(
+          "a"
+        );
+
+
+      link.href =
+        url;
+
+
+      link.download =
+        `comprobante-${saleId}.pdf`;
+
+
+      document.body
+        .appendChild(
+          link
+        );
+
+
+      link.click();
+
+
+      link.remove();
+
+
+      window.URL
+        .revokeObjectURL(
+          url
+        );
+
+    } catch (error) {
+      console.error(
+        "Error descargando comprobante:",
+        error
+      );
+
+
+      alert(
+        error instanceof Error
+          ? error.message
+          : "No se pudo descargar el comprobante"
+      );
+    }
+  };
+
   /*
    * ============================================================
    * RENDER
@@ -563,32 +785,69 @@ export default function SalesList({
 
                     )}
 
-                    {/* PAGADA → Facturación / ARCA */}
-                    {sale.estado ===
-                      "PAGADA" && (
+                    {/* PAGADA → Generar comprobante */}
+{/* 
+    PAGADA → generar comprobante y pasar a FACTURADA
 
-                      <motion.button
-                        onClick={() =>
-                          onUpdateStatus(
-                            sale._id,
-                            "FACTURADA"
-                          )
-                        }
-                        className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 cursor-pointer p-1.5 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/30 transition-colors"
-                        whileHover={{
-                          scale: 1.15,
-                        }}
-                        whileTap={{
-                          scale: 0.9,
-                        }}
-                        title="Facturar"
-                      >
+    FACTURADA sin comprobante → generar comprobante histórico
+*/}
+{(
+  sale.estado === "PAGADA" ||
+  (
+    sale.estado === "FACTURADA" &&
+    !sale.factura
+  )
+) && (
+  <motion.button
+    onClick={() =>
+      generarComprobante(
+        sale._id
+      )
+    }
+    className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg cursor-pointer transition-colors"
+    whileHover={{
+      scale: 1.05
+    }}
+    whileTap={{
+      scale: 0.95
+    }}
+    title="Generar comprobante"
+  >
+    <CurrencyDollarIcon className="h-5 w-5" />
 
-                        <CurrencyDollarIcon className="h-5 w-5" />
+    Generar comprobante
+  </motion.button>
+)}
 
-                      </motion.button>
 
-                    )}
+{/* FACTURADA → Descargar comprobante */}
+{sale.estado ===
+  "FACTURADA" &&
+  sale.factura && (
+
+  <motion.button
+    onClick={() =>
+      descargarComprobante(
+        sale._id
+      )
+    }
+    className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg cursor-pointer transition-colors"
+    whileHover={{
+      scale: 1.05
+    }}
+    whileTap={{
+      scale: 0.95
+    }}
+    title="Descargar comprobante"
+  >
+
+    <CurrencyDollarIcon className="h-5 w-5" />
+
+    Descargar comprobante
+
+  </motion.button>
+
+)}
 
                     {/* CREADA / PAGADA → cancelar */}
                     {(sale.estado ===

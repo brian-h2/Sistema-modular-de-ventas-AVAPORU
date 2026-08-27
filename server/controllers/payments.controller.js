@@ -47,59 +47,47 @@ export async function createPaymentPreference(
   req,
   res
 ) {
-
   try {
-
     const {
       preferenceClient
     } =
       getMercadoPagoClients();
-
 
     const {
       saleId
     } =
       req.params;
 
-
     const sale =
       await Sale.findById(
         saleId
       );
 
-
     if (!sale) {
-
       return res
         .status(404)
         .json({
           message:
             "Venta no encontrada"
         });
-
     }
-
 
     if (
       sale.estado !==
       "CREADA"
     ) {
-
       return res
         .status(400)
         .json({
           message:
             "Solo se puede generar un pago para una venta en estado CREADA"
         });
-
     }
-
 
     /*
      * Convertimos los productos de la venta
      * al formato esperado por Mercado Pago.
      */
-
     const items =
       sale.items.map(
         item => ({
@@ -124,111 +112,168 @@ export async function createPaymentPreference(
         })
       );
 
-
     /*
-     * URLs públicas.
+     * ========================================================
+     * CONFIGURACIÓN LOCAL / PRODUCCIÓN
+     * ========================================================
      *
-     * Para el flujo completo NO debemos usar localhost.
+     * LOCAL:
      *
-     * FRONTEND_URL:
-     * URL pública de Vercel.
+     * FRONTEND_URL=http://localhost:5173
+     * BACKEND_URL=http://localhost:4000
      *
-     * BACKEND_URL:
-     * URL pública de Railway.
+     * → Checkout funciona.
+     * → No enviamos back_urls.
+     * → No enviamos auto_return.
+     * → No enviamos notification_url.
+     *
+     *
+     * PRODUCCIÓN:
+     *
+     * FRONTEND_URL=https://....vercel.app
+     * BACKEND_URL=https://....railway.app
+     *
+     * → Checkout funciona.
+     * → Retorno automático.
+     * → Webhook.
+     * → CREADA pasa automáticamente a PAGADA.
      */
 
     const frontendUrl =
-      process.env.FRONTEND_URL;
+      process.env.FRONTEND_URL?.trim();
 
     const backendUrl =
-      process.env.BACKEND_URL;
+      process.env.BACKEND_URL?.trim();
 
+    const frontendEsPublico =
+      Boolean(
+        frontendUrl &&
+        frontendUrl.startsWith(
+          "https://"
+        )
+      );
+
+    const backendEsPublico =
+      Boolean(
+        backendUrl &&
+        backendUrl.startsWith(
+          "https://"
+        )
+      );
+
+    /*
+     * Objeto base de la preferencia.
+     *
+     * Esto funciona siempre,
+     * incluso en localhost.
+     */
+    const preferenceBody = {
+      items,
+
+      /*
+       * Vinculamos Mercado Pago
+       * con la venta AVAPORU.
+       */
+      external_reference:
+        sale._id.toString(),
+
+      metadata: {
+        saleId:
+          sale._id.toString()
+      }
+    };
+
+
+    /*
+     * ========================================================
+     * RETORNO AUTOMÁTICO
+     * ========================================================
+     *
+     * SOLO si el frontend es público.
+     *
+     * Mercado Pago no debe recibir localhost
+     * como back_url para este flujo.
+     */
 
     if (
-      !frontendUrl ||
-      !backendUrl
+      frontendEsPublico
     ) {
+      preferenceBody.back_urls = {
+        success:
+          `${frontendUrl}/ventas?payment=success`,
 
-      return res
-        .status(500)
-        .json({
-          message:
-            "Faltan FRONTEND_URL o BACKEND_URL en las variables de entorno"
-        });
+        pending:
+          `${frontendUrl}/ventas?payment=pending`,
 
+        failure:
+          `${frontendUrl}/ventas?payment=failure`
+      };
+
+      preferenceBody.auto_return =
+        "approved";
     }
 
 
     /*
-     * Creamos la preferencia Checkout Pro.
+     * ========================================================
+     * WEBHOOK
+     * ========================================================
+     *
+     * SOLO si el backend es público.
+     *
+     * Mercado Pago necesita poder acceder
+     * desde internet a esta URL.
+     */
+
+    if (
+      backendEsPublico
+    ) {
+      preferenceBody.notification_url =
+        `${backendUrl}/payments/webhook`;
+    }
+
+
+    /*
+     * Información útil para debugging.
+     *
+     * NO mostramos secretos.
+     */
+    console.log(
+      "Mercado Pago - creando preferencia:",
+      {
+        saleId:
+          sale._id.toString(),
+
+        frontendEsPublico,
+
+        backendEsPublico,
+
+        retornoAutomatico:
+          frontendEsPublico,
+
+        webhook:
+          backendEsPublico
+      }
+    );
+
+
+    /*
+     * Crear Checkout Pro.
      */
 
     const preference =
       await preferenceClient.create({
-        body: {
-
-          items,
-
-          /*
-           * Guardamos el ID de nuestra venta.
-           *
-           * Mercado Pago nos lo devuelve después
-           * cuando consultamos el pago.
-           */
-          external_reference:
-            sale._id.toString(),
-
-
-          metadata: {
-            saleId:
-              sale._id.toString()
-          },
-
-
-          /*
-           * Cuando termina el pago,
-           * Mercado Pago vuelve al frontend.
-           */
-
-          back_urls: {
-
-            success:
-              `${frontendUrl}/ventas?payment=success`,
-
-            pending:
-              `${frontendUrl}/ventas?payment=pending`,
-
-            failure:
-              `${frontendUrl}/ventas?payment=failure`
-          },
-
-
-          /*
-           * Si el pago queda aprobado,
-           * vuelve automáticamente a AVAPORU.
-           */
-
-          auto_return:
-            "approved",
-
-
-          /*
-           * Mercado Pago avisa al backend
-           * cuando cambia el estado del pago.
-           */
-
-          notification_url:
-            `${backendUrl}/payments/webhook`
-        }
+        body:
+          preferenceBody
       });
 
 
     /*
-     * Guardamos la preferencia en la venta.
+     * Guardamos los datos de la preferencia
+     * dentro de la venta.
      */
 
     sale.pago = {
-
       metodo:
         "MERCADO_PAGO",
 
@@ -239,16 +284,14 @@ export async function createPaymentPreference(
         preference.id
     };
 
-
     await sale.save();
 
 
     /*
-     * Devolvemos las URLs del checkout.
+     * Devolvemos las URLs.
      */
 
     return res.json({
-
       preferenceId:
         preference.id,
 
@@ -259,26 +302,21 @@ export async function createPaymentPreference(
         preference.sandbox_init_point
     });
 
-
   } catch (error) {
-
     console.error(
       "Error creando preferencia Mercado Pago:",
       error
     );
 
-
     return res
       .status(500)
       .json({
-
         message:
           "No se pudo generar el pago con Mercado Pago",
 
         error:
           error.message
       });
-
   }
 }
 
@@ -300,55 +338,40 @@ export async function mercadoPagoWebhook(
   req,
   res
 ) {
-
   try {
-
     const {
       paymentClient
     } =
       getMercadoPagoClients();
-
 
     /*
      * Mercado Pago puede enviar el ID
      * en diferentes lugares dependiendo
      * del formato de notificación.
      */
-
     const paymentId =
-
       req.body?.data?.id ||
-
       req.query?.["data.id"] ||
-
       req.query?.id;
-
 
     /*
      * Algunas notificaciones pueden
      * no corresponder a un pago.
-     *
-     * Respondemos 200 para evitar
-     * reintentos innecesarios.
      */
-
     if (!paymentId) {
-
       console.log(
         "Webhook recibido sin paymentId"
       );
 
       return res
         .sendStatus(200);
-
     }
 
 
     /*
-     * Consultamos el pago real
-     * directamente a Mercado Pago.
+     * Consultamos el pago directamente
+     * en Mercado Pago.
      */
-
     const payment =
       await paymentClient.get({
         id:
@@ -374,16 +397,12 @@ export async function mercadoPagoWebhook(
     /*
      * Recuperamos el ID de la venta AVAPORU.
      */
-
     const saleId =
-
       payment.external_reference ||
-
       payment.metadata?.saleId;
 
 
     if (!saleId) {
-
       console.warn(
         "Pago recibido sin referencia de venta:",
         paymentId
@@ -391,7 +410,6 @@ export async function mercadoPagoWebhook(
 
       return res
         .sendStatus(200);
-
     }
 
 
@@ -402,7 +420,6 @@ export async function mercadoPagoWebhook(
 
 
     if (!sale) {
-
       console.warn(
         "Venta no encontrada para paymentId:",
         paymentId
@@ -410,33 +427,27 @@ export async function mercadoPagoWebhook(
 
       return res
         .sendStatus(200);
-
     }
 
 
     /*
-     * Si la venta todavía no tiene
-     * información de pago, la inicializamos.
+     * Inicializar información de pago
+     * si por algún motivo no existe.
      */
-
     if (!sale.pago) {
-
       sale.pago = {
-
         metodo:
           "MERCADO_PAGO",
 
         estado:
           "PENDIENTE"
       };
-
     }
 
 
     /*
-     * Guardamos el ID real del pago.
+     * Guardar ID real del pago.
      */
-
     sale.pago.paymentId =
       String(
         payment.id
@@ -444,7 +455,9 @@ export async function mercadoPagoWebhook(
 
 
     /*
-     * Actualizamos el estado.
+     * ========================================================
+     * ACTUALIZAR ESTADOS
+     * ========================================================
      */
 
     switch (
@@ -460,11 +473,8 @@ export async function mercadoPagoWebhook(
           new Date();
 
         /*
-         * Esta es la transición importante:
-         *
          * CREADA → PAGADA
          */
-
         sale.estado =
           "PAGADA";
 
@@ -513,22 +523,17 @@ export async function mercadoPagoWebhook(
     return res
       .sendStatus(200);
 
-
   } catch (error) {
-
     console.error(
       "Error procesando webhook Mercado Pago:",
       error
     );
 
-
     /*
      * Mercado Pago puede reintentar
-     * cuando recibe error 500.
+     * cuando recibe 500.
      */
-
     return res
       .sendStatus(500);
-
   }
 }
