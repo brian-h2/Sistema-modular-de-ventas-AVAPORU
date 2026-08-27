@@ -4,7 +4,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell
 } from "recharts";
 import { createReport, listReports } from "../services/expenseService";
 import Swal from "sweetalert2";
@@ -15,7 +15,8 @@ interface Expense {
   _id: string;
   fecha: string;
   categoria: string;
-  description: string;
+  descripcion?: string;
+  description?: string;
   monto: number;
   presupuestoDisponible: number;
 }
@@ -49,16 +50,30 @@ export default function ExpensesModule() {
     { id: "mantenimiento", name: "Mantenimiento", color: "#06b6d4" },
   ];
 
-  // Obtener nombre de categoría
-  const getCategoryName = (id: string) =>
-    expenseCategories.find((c) => c.id === id)?.name || id;
+  // ⏳ Cargar gastos desde backend
+  useEffect(() => {
+    listReports()
+      .then((data) => setExpenses(Array.isArray(data) ? data : []))
+      .catch(() =>
+        Swal.fire("Error", "No se pudo cargar los gastos desde el servidor", "error")
+      );
+  }, []);
+
+  // 📊 Calcular totales en base a datos REALES
+  const totalSpent = expenses.reduce((s, e) => s + Number(e.monto || 0), 0);
+  const totalBudget = expenses.reduce((s, e) => s + Number(e.presupuestoDisponible || 0), 0);
+  const budgetUsage = totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
 
   // Agrupar gastos por categoría
   const categoryStats = expenseCategories.map((cat) => {
-    const gastosCat = expenses.filter((e) => e.categoria === cat.id);
+    const gastosCat = expenses.filter(
+      (e) => (e.categoria || "").toLowerCase() === cat.id.toLowerCase()
+    );
 
-    const totalGastado = gastosCat.reduce((s, g) => s + g.monto, 0);
-    const totalPresupuesto = gastosCat.reduce((s, g) => s + g.presupuestoDisponible, 0);
+    const totalGastado = gastosCat.reduce((s, g) => s + Number(g.monto || 0), 0);
+    const totalPresupuesto = gastosCat.reduce((s, g) => s + Number(g.presupuestoDisponible || 0), 0);
+    const executionPercent = totalPresupuesto > 0 ? (totalGastado / totalPresupuesto) * 100 : 0;
+    const sharePercent = totalSpent > 0 ? (totalGastado / totalSpent) * 100 : 0;
 
     return {
       id: cat.id,
@@ -66,37 +81,26 @@ export default function ExpensesModule() {
       color: cat.color,
       budget: totalPresupuesto,
       spent: totalGastado,
-      percent: totalPresupuesto > 0 ? (totalGastado / totalPresupuesto) * 100 : 0,
+      percent: executionPercent,
+      sharePercent: Number(sharePercent.toFixed(1)),
     };
   });
 
+  // Datos para el gráfico de torta (% de participación del gasto total)
+  const pieData = categoryStats
+    .filter((c) => c.spent > 0)
+    .map((c) => ({
+      name: c.name,
+      value: c.spent,
+      percentage: c.sharePercent,
+      fill: c.color,
+    }));
 
-  // Datos para el gráfico de torta
-  const pieData = categoryStats.map((c) => ({
+  // Datos para el gráfico de barras comparativo (Presupuesto vs Gastado por categoría)
+  const chartData = categoryStats.map((c) => ({
     name: c.name,
-    value: c.percent,
-    fill: c.color,
-  }));
-
-  // ⏳ Cargar gastos desde backend
-  useEffect(() => {
-    listReports()
-      .then((data) => setExpenses(data))
-      .catch(() =>
-        Swal.fire("Error", "No se pudo cargar los gastos desde el servidor", "error")
-      );
-  }, []);
-
-  // 📊 Calcular resumen en base a datos REALES
-  const totalSpent = expenses.reduce((s, e) => s + e.monto, 0);
-  const totalBudget = expenses.reduce((s, e) => s + e.presupuestoDisponible, 0);
-  const budgetUsage = totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
-
-  // Datos para el gráfico
-  const chartData = expenses.map((e) => ({
-    name: getCategoryName(e.categoria),
-    spent: e.monto,
-    budget: e.presupuestoDisponible,
+    spent: c.spent,
+    budget: c.budget,
   }));
 
   // ✅ Crear gasto
@@ -387,10 +391,16 @@ export default function ExpensesModule() {
                   <BarChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                     <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 12 }} />
-                    <YAxis tick={{ fill: '#64748b', fontSize: 12 }} />
-                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                    <Bar dataKey="budget" fill="#e2e8f0" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="spent" fill="#10b981" radius={[4, 4, 0, 0]} />
+                    <YAxis tick={{ fill: '#64748b', fontSize: 12 }} tickFormatter={(val) => `$${(val / 1000).toFixed(0)}k`} />
+                    <Tooltip
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                      formatter={(value: any, name: any) => [
+                        `$${Number(value || 0).toLocaleString('es-AR')}`,
+                        name === 'budget' || name === 'Presupuesto' ? 'Presupuesto' : 'Gastado'
+                      ]}
+                    />
+                    <Bar dataKey="budget" name="Presupuesto" fill="#cbd5e1" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="spent" name="Gastado" fill="#10b981" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -404,38 +414,71 @@ export default function ExpensesModule() {
                 <div className="p-1.5 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
                   <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 </div>
-                Distribución por Categoría
+                Distribución por Categoría (% del Gasto Total)
               </CardTitle>
             </CardHeader>
 
-            <CardContent className="flex justify-center">
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    dataKey="value"
-                    labelLine={false}
-                    label={(entry: any) => entry.name + ': ' + Number(entry.value).toLocaleString() + '%'}
-                  />
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
+            <CardContent className="flex flex-col items-center">
+              <div className="w-full h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={pieData}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={95}
+                      innerRadius={45}
+                      dataKey="value"
+                      paddingAngle={2}
+                      labelLine={false}
+                      label={({ name, percentage }: any) => `${name}: ${percentage}%`}
+                    >
+                      {pieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        borderRadius: "12px",
+                        border: "none",
+                        boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+                      }}
+                      formatter={(value: any, name: any, item: any) => [
+                        `$${Number(value || 0).toLocaleString("es-AR")} (${item?.payload?.percentage || 0}%)`,
+                        name,
+                      ]}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Leyenda interactiva de categorías */}
+              <div className="flex flex-wrap justify-center gap-2 pt-3 border-t border-slate-100 dark:border-slate-800 w-full">
+                {pieData.map((p) => (
+                  <span
+                    key={p.name}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60"
+                  >
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: p.fill }} />
+                    <span>{p.name}:</span>
+                    <strong className="text-slate-900 dark:text-slate-100">{p.percentage}%</strong>
+                  </span>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </motion.div>
 
-        {/* ESTADO POR CATEGORÍA */}
-        <motion.div variants={itemVariants}>
+        {/* ESTADO POR CATEGORÍA Y GASTOS REGISTRADOS */}
+        <motion.div variants={itemVariants} className="flex flex-col gap-6">
+          {/* ESTADO POR CATEGORÍA */}
           <Card className="bg-white dark:bg-slate-900 shadow-sm rounded-2xl border border-slate-100 dark:border-slate-700 p-6 transition-all hover:shadow-md">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
                 <div className="p-1.5 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg">
                   <TrendingUp className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
-                Estado por Categoría
+                Ejecución Presupuestaria por Rubro
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -454,15 +497,17 @@ export default function ExpensesModule() {
                       ></span>
                       {cat.name}
                     </span>
-                    <span className="font-semibold text-slate-900 dark:text-slate-100">{cat.percent.toFixed(1)}%</span>
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">
+                      ${cat.spent.toLocaleString("es-AR")} / ${cat.budget.toLocaleString("es-AR")} ({cat.percent.toFixed(1)}%)
+                    </span>
                   </div>
 
-                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
+                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
                     <motion.div
-                      className="h-3 rounded-full"
+                      className="h-2.5 rounded-full"
                       style={{ backgroundColor: cat.color }}
                       initial={{ width: 0 }}
-                      animate={{ width: Math.min(cat.percent, 100) + '%' }}
+                      animate={{ width: Math.min(cat.percent, 100) + "%" }}
                       transition={{ duration: 0.8, delay: i * 0.1 }}
                     />
                   </div>
@@ -472,66 +517,115 @@ export default function ExpensesModule() {
           </Card>
 
           {/* GASTOS REGISTRADOS */}
-          <Card className="bg-white dark:bg-slate-900 shadow-sm rounded-2xl border border-slate-100 dark:border-slate-700 p-6 mt-6 transition-all hover:shadow-md">
-            <CardHeader className="flex flex-col gap-4">
+          <Card className="bg-white dark:bg-slate-900 shadow-sm rounded-2xl border border-slate-100 dark:border-slate-700 p-6 transition-all hover:shadow-md">
+            <CardHeader className="flex flex-col gap-3 pb-3">
               <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
-                <div className="p-1.5 bg-amber-100 rounded-lg">
-                  <Receipt className="w-5 h-5 text-amber-600" />
+                <div className="p-1.5 bg-amber-100 dark:bg-amber-900/40 rounded-lg">
+                  <Receipt className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                 </div>
-                Gastos Registrados
+                <span>Gastos Registrados</span>
+                <span className="ml-auto text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                  {expenses.length} movimientos
+                </span>
               </CardTitle>
-              <div className="flex flex-col gap-2">
+
+              {/* Filtros */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <input
                   type="text"
-                  placeholder="Buscar descripción..."
+                  placeholder="Buscar por descripción..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full px-3 py-1.5 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200"
                 />
                 <select
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="w-full px-3 py-1.5 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white dark:bg-slate-900"
+                  className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500/20 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200"
                 >
                   <option value="TODAS">Todas las categorías</option>
-                  {expenseCategories.map(cat => (
-                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  {expenseCategories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
                   ))}
                 </select>
               </div>
             </CardHeader>
-            <CardContent className="space-y-3 max-h-96 overflow-y-auto">
-              {expenses.filter(exp => {
-                const matchesSearch = (exp.description ?? "").toLowerCase().includes(searchTerm.toLowerCase());
-                const matchesCat = categoryFilter === "TODAS" || exp.categoria === categoryFilter;
-                return matchesSearch && matchesCat;
-              }).map((exp, i) => (
-                <motion.div
-                  key={exp._id}
-                  className="border border-slate-200 dark:border-slate-700 rounded-xl p-3 hover:shadow-sm transition-all bg-slate-50/30 dark:bg-slate-800/30"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.03 }}
-                >
-                  <div className="flex justify-between">
-                    <div>
-                      <p className="font-medium text-sm text-slate-900 dark:text-slate-100">{exp.description}</p>
-                      <p className="text-xs text-gray-600 dark:text-slate-400">{getCategoryName(exp.categoria)}</p>
-                      <p className="text-xs text-gray-500 dark:text-slate-400">
-                        {new Date(exp.fecha).toLocaleDateString("es-ES")}
+
+            <CardContent className="space-y-3 max-h-[460px] overflow-y-auto pr-1">
+              {expenses
+                .filter((exp) => {
+                  const desc = (exp.descripcion || exp.description || "").toLowerCase();
+                  const matchesSearch = desc.includes(searchTerm.toLowerCase());
+                  const matchesCat =
+                    categoryFilter === "TODAS" ||
+                    (exp.categoria || "").toLowerCase() === categoryFilter.toLowerCase();
+                  return matchesSearch && matchesCat;
+                })
+                .map((exp, i) => {
+                  const catInfo = expenseCategories.find(
+                    (c) => c.id.toLowerCase() === (exp.categoria || "").toLowerCase()
+                  );
+                  const desc = exp.descripcion || exp.description || "Gasto registrado";
+                  const fecha = exp.fecha ? new Date(exp.fecha).toLocaleDateString("es-AR") : "-";
+
+                  return (
+                    <motion.div
+                      key={exp._id || i}
+                      className="border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3.5 hover:shadow-xs transition-all bg-white dark:bg-slate-800/60 flex flex-col gap-2"
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.02 }}
+                    >
+                      {/* Fila Superior: Categoría + Fecha y Monto */}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-md"
+                            style={{
+                              backgroundColor: `${catInfo?.color || "#64748b"}15`,
+                              color: catInfo?.color || "#64748b",
+                            }}
+                          >
+                            <span
+                              className="w-1.5 h-1.5 rounded-full"
+                              style={{ backgroundColor: catInfo?.color || "#64748b" }}
+                            />
+                            {catInfo?.name || exp.categoria}
+                          </span>
+                          <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500">
+                            {fecha}
+                          </span>
+                        </div>
+
+                        <span className="font-extrabold text-sm text-red-600 dark:text-red-400 tracking-tight">
+                          ${Number(exp.monto || 0).toLocaleString("es-AR")}
+                        </span>
+                      </div>
+
+                      {/* Fila Media: Descripción Completa */}
+                      <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 leading-snug">
+                        {desc}
                       </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-bold text-red-600 dark:text-red-400">
-                        ${exp.monto.toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-500 dark:text-slate-400 mt-2">
-                    Presupuesto: ${exp.presupuestoDisponible.toLocaleString()}
-                  </p>
-                </motion.div>
-              ))}
+
+                      {/* Fila Inferior: Presupuesto y Cobertura */}
+                      <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-700/60 text-[11px] text-slate-500 dark:text-slate-400">
+                        <span>
+                          Presupuesto asignado:{" "}
+                          <strong className="text-slate-700 dark:text-slate-300 font-semibold">
+                            ${Number(exp.presupuestoDisponible || 0).toLocaleString("es-AR")}
+                          </strong>
+                        </span>
+                        <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                          {exp.presupuestoDisponible > 0
+                            ? Math.round((exp.monto / exp.presupuestoDisponible) * 100)
+                            : 0}%
+                        </span>
+                      </div>
+                    </motion.div>
+                  );
+                })}
             </CardContent>
           </Card>
         </motion.div>

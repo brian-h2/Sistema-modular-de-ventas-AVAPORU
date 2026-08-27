@@ -1,17 +1,29 @@
-import dotenv from "dotenv";
-import mongoose from "mongoose";
-import Product from "../models/product.model.js";
-import Sale from "../models/sale.model.js";
-import Expense from "../models/expense.model.js";
-import User from "../models/user.model.js";
-
-dotenv.config();
+// Script para ejecutar directamente en mongosh o MongoDB Compass
+// Comando: mongosh "tu_mongodb_uri" seed_mongosh.js
 
 const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 const pick = (arr) => arr[randInt(0, arr.length - 1)];
 
-const PRODUCTS_DATA = [
-  // --- CALZADO (55 variedad de productos) ---
+// 1. Usuarios / Vendedores
+const USERS_RAW = [
+  { _id: new ObjectId(), email: "carlos.vendedor@avaporu.com", nombre: "Carlos Pérez", role: "Vendedor", status: "active", passwordHash: "$2a$10$e8w5hH4...hashed" },
+  { _id: new ObjectId(), email: "ana.vendedora@avaporu.com", nombre: "Ana Martínez", role: "Vendedor", status: "active", passwordHash: "$2a$10$e8w5hH4...hashed" },
+  { _id: new ObjectId(), email: "roberto.encargado@avaporu.com", nombre: "Roberto Fernández", role: "Encargado", status: "active", passwordHash: "$2a$10$e8w5hH4...hashed" },
+  { _id: new ObjectId(), email: "lucia.gerente@avaporu.com", nombre: "Lucía Gómez", role: "Gerente", status: "active", passwordHash: "$2a$10$e8w5hH4...hashed" }
+];
+
+// Comprobar si ya existen usuarios o insertarlos
+let existingUsers = db.users.find({}).toArray();
+if (existingUsers.length === 0) {
+  db.users.insertMany(USERS_RAW);
+  existingUsers = db.users.find({}).toArray();
+  print(`✅ Insertados ${existingUsers.length} usuarios/vendedores`);
+} else {
+  print(`ℹ️ Encontrados ${existingUsers.length} usuarios existentes para ventas`);
+}
+
+const PRODUCTS_RAW = [
+  // --- CALZADO (55 variedades) ---
   { sku: "CAL-001", nombre: "Zapatilla Running Air Pegasus 40", precio: 95000, categoria: "Calzado", stockDisponible: 25, stockMinimo: 5 },
   { sku: "CAL-002", nombre: "Zapatilla Running Ultraboost Light", precio: 115000, categoria: "Calzado", stockDisponible: 18, stockMinimo: 5 },
   { sku: "CAL-003", nombre: "Botín Urbano Cuero Legítimo Marrón", precio: 85000, categoria: "Calzado", stockDisponible: 12, stockMinimo: 4 },
@@ -110,8 +122,7 @@ const CLIENTES = [
   "Juan Pérez", "María González", "Carlos Rodríguez", "Ana Fernández", "Luis Martínez",
   "Sofía López", "Diego Sánchez", "Valentina Díaz", "Martín Romero", "Camila Torres",
   "Federico Ruiz", "Lucía Álvarez", "Nicolás Gómez", "Julieta Castro", "Tomás Ortiz",
-  "Agustina Silva", "Franco Molina", "Florencia Vega", "Ignacio Morales", "Paula Rojas",
-  "Esteban Benítez", "Mariana Maidana", "Gonzalo Acosta", "Rocío Giménez", "Joaquín Duarte"
+  "Agustina Silva", "Franco Molina", "Florencia Vega", "Ignacio Morales", "Paula Rojas"
 ];
 
 const ESTADOS = ["CREADA", "PAGADA", "FACTURADA", "CANCELADA"];
@@ -134,126 +145,96 @@ function getRandomDate(startYear = 2023) {
   return new Date(start + Math.random() * (end - start));
 }
 
-async function seedUsers() {
-  let vendedores = await User.find({});
-  if (vendedores.length === 0) {
-    vendedores = await User.insertMany([
-      { email: "carlos.vendedor@avaporu.com", nombre: "Carlos Pérez", role: "Vendedor", status: "active", passwordHash: "$2a$10$e8w5hH4...hashed" },
-      { email: "ana.vendedora@avaporu.com", nombre: "Ana Martínez", role: "Vendedor", status: "active", passwordHash: "$2a$10$e8w5hH4...hashed" },
-      { email: "roberto.encargado@avaporu.com", nombre: "Roberto Fernández", role: "Encargado", status: "active", passwordHash: "$2a$10$e8w5hH4...hashed" },
-      { email: "lucia.gerente@avaporu.com", nombre: "Lucía Gómez", role: "Gerente", status: "active", passwordHash: "$2a$10$e8w5hH4...hashed" }
-    ]);
-    console.log(`✅ ${vendedores.length} usuarios/vendedores creados`);
-  } else {
-    console.log(`ℹ️ ${vendedores.length} usuarios existentes encontrados para asignar como vendedores`);
-  }
-  return vendedores;
-}
+// 2. Preparar Productos con ObjectId
+const productsToInsert = PRODUCTS_RAW.map(p => ({
+  _id: new ObjectId(),
+  sku: p.sku,
+  nombre: p.nombre,
+  precio: p.precio,
+  stockDisponible: p.stockDisponible,
+  stockMinimo: p.stockMinimo,
+  categoria: p.categoria,
+  createdAt: new Date(),
+  updatedAt: new Date()
+}));
 
-async function seedProducts() {
-  await Product.deleteMany({});
-  const created = await Product.insertMany(PRODUCTS_DATA);
-  console.log(`✅ ${created.length} productos insertados (55 Calzado y 35 Accesorios)`);
-  return created;
-}
+db.products.deleteMany({});
+db.products.insertMany(productsToInsert);
+print(`✅ Insertados ${productsToInsert.length} productos (55 Calzado y 35 Accesorios)`);
 
-async function seedSales(products, vendedores) {
-  await Sale.deleteMany({});
-  const salesToCreate = 250;
-  const salesData = [];
-
-  for (let i = 0; i < salesToCreate; i++) {
-    const itemCount = randInt(1, 4);
-    const chosenProducts = new Set();
-    while (chosenProducts.size < itemCount && chosenProducts.size < products.length) {
-      chosenProducts.add(pick(products));
-    }
-
-    const items = Array.from(chosenProducts).map((prod) => {
-      const cantidad = randInt(1, 4);
-      const precioUnitario = prod.precio;
-      return {
-        product: prod._id,
-        sku: prod.sku,
-        nombre: prod.nombre,
-        cantidad,
-        precioUnitario,
-        subtotal: precioUnitario * cantidad,
-      };
-    });
-
-    const total = items.reduce((acc, it) => acc + it.subtotal, 0);
-    // Cada venta tiene asignado un vendedor (User ObjectId)
-    const vendedorObj = pick(vendedores);
-
-    salesData.push({
-      fecha: getRandomDate(2023),
-      cliente: pick(CLIENTES),
-      vendedor: vendedorObj._id,
-      items,
-      total,
-      estado: weightedPick(ESTADOS, ESTADO_WEIGHTS),
-    });
+// 3. Generar Ventas vinculadas a Vendedores (2023 - 2026)
+const salesToInsert = [];
+for (let i = 0; i < 250; i++) {
+  const itemCount = randInt(1, 4);
+  const chosenProds = [];
+  while (chosenProds.length < itemCount) {
+    const p = pick(productsToInsert);
+    if (!chosenProds.find(x => x._id === p._id)) chosenProds.push(p);
   }
 
-  const created = await Sale.insertMany(salesData);
-  console.log(`✅ ${created.length} ventas insertadas asociadas a vendedores (2023 - 2026)`);
+  const items = chosenProds.map(prod => {
+    const cantidad = randInt(1, 4);
+    const precioUnitario = prod.precio;
+    return {
+      product: prod._id,
+      sku: prod.sku,
+      nombre: prod.nombre,
+      cantidad: cantidad,
+      precioUnitario: precioUnitario,
+      subtotal: precioUnitario * cantidad
+    };
+  });
+
+  const total = items.reduce((acc, item) => acc + item.subtotal, 0);
+  const fecha = getRandomDate(2023);
+  // Asignar ObjectId de Vendedor (User)
+  const vendedor = pick(existingUsers)._id;
+
+  salesToInsert.push({
+    fecha: fecha,
+    cliente: pick(CLIENTES),
+    vendedor: vendedor,
+    items: items,
+    total: total,
+    estado: weightedPick(ESTADOS, ESTADO_WEIGHTS),
+    createdAt: fecha,
+    updatedAt: fecha
+  });
 }
 
-async function seedExpenses() {
-  await Expense.deleteMany({});
-  const expensesToCreate = 80;
-  const categories = [
-    "Alquiler Local", "Servicios (Luz, Agua, Gas)", "Proveedores Calzado", 
-    "Proveedores Accesorios", "Marketing y Publicidad", "Sueldos y Comisiones", 
-    "Mantenimiento y Equipamiento", "Impuestos y Tasas", "Logística y Envíos"
-  ];
+db.sales.deleteMany({});
+db.sales.insertMany(salesToInsert);
+print(`✅ Insertadas ${salesToInsert.length} ventas asociadas a vendedores en 'sales'`);
 
-  const expensesData = [];
-  let presupuestoDisponible = 5000000;
+// 4. Generar Gastos (2023 - 2026)
+const categories = [
+  "Alquiler Local", "Servicios (Luz, Agua, Gas)", "Proveedores Calzado", 
+  "Proveedores Accesorios", "Marketing y Publicidad", "Sueldos y Comisiones", 
+  "Mantenimiento y Equipamiento", "Impuestos y Tasas", "Logística y Envíos"
+];
 
-  for (let i = 0; i < expensesToCreate; i++) {
-    const categoria = pick(categories);
-    const monto = randInt(15, 300) * 1000;
-    presupuestoDisponible = Math.max(100000, presupuestoDisponible - monto + randInt(50000, 200000));
+const expensesToInsert = [];
+let presupuestoDisponible = 5000000;
 
-    expensesData.push({
-      fecha: getRandomDate(2023),
-      categoria,
-      descripcion: `Gasto correspondiente a ${categoria.toLowerCase()}`,
-      monto,
-      presupuestoDisponible,
-    });
-  }
+for (let i = 0; i < 80; i++) {
+  const categoria = pick(categories);
+  const monto = randInt(15, 300) * 1000;
+  presupuestoDisponible = Math.max(100000, presupuestoDisponible - monto + randInt(50000, 200000));
+  const fecha = getRandomDate(2023);
 
-  expensesData.sort((a, b) => a.fecha - b.fecha);
-
-  const created = await Expense.insertMany(expensesData);
-  console.log(`✅ ${created.length} gastos insertados (2023 - 2026)`);
+  expensesToInsert.push({
+    fecha: fecha,
+    categoria: categoria,
+    descripcion: `Gasto correspondiente a ${categoria.toLowerCase()}`,
+    monto: monto,
+    presupuestoDisponible: presupuestoDisponible,
+    createdAt: fecha,
+    updatedAt: fecha
+  });
 }
 
-async function main() {
-  const uri = process.env.MONGODB_URI;
-  if (!uri) {
-    console.error("❌ Falta MONGODB_URI en el archivo .env");
-    process.exit(1);
-  }
+expensesToInsert.sort((a, b) => a.fecha - b.fecha);
 
-  mongoose.set("strictQuery", true);
-  await mongoose.connect(uri);
-  console.log("🗄️  MongoDB conectado:", mongoose.connection.name);
-
-  const vendedores = await seedUsers();
-  const products = await seedProducts();
-  await seedSales(products, vendedores);
-  await seedExpenses();
-
-  console.log("🎉 Carga masiva de datos completada con éxito");
-  await mongoose.disconnect();
-  process.exit(0);
-}
-
-main().catch((err) => {
-  console.error("❌ Error al ejecutar el seed:", err);
-  process.exit(1);
-});
+db.expenses.deleteMany({});
+db.expenses.insertMany(expensesToInsert);
+print(`✅ Insertados ${expensesToInsert.length} gastos en 'expenses'`);
