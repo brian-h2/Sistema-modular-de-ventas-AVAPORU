@@ -13,6 +13,7 @@ import expensesRouter from "./routes/expenses.routes.js";
 import authRouter from "./routes/auth.routes.js";
 import reportesRouter from "./routes/reports.routes.js";
 import scheduledReportsRouter from "./routes/scheduledReports.routes.js";
+import paymentsRoutes from "./routes/payments.routes.js";
 import { authRequired, requireRole } from "./middlewares/auth.middleware.js";
 import { iniciarSchedulerReportes } from "./services/scheduler.js";
 
@@ -56,5 +57,6 @@ app.use("/auth", authRouter);
 app.use("/products", authRequired, productsRouter);
 app.use("/sales",    authRequired, salesRouter);
 app.use("/expenses", authRequired, expensesRouter);
+app.use("/payments", paymentsRoutes);
 app.use("/reportes", authRequired, reportesRouter);
 app.use("/scheduled-reports", authRequired, scheduledReportsRouter);
