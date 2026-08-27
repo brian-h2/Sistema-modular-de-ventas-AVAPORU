@@ -26,9 +26,9 @@ export default function Navbar() {
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
     { name: "Ventas", path: "/sales", icon: ShoppingCart },
     { name: "Stock", path: "/stock", icon: Package },
-    { name: "Usuarios", path: "/users", icon: Users, hideFor: ["Vendedor"] },
     { name: "Gastos", path: "/expenses", icon: Receipt },
     { name: "Reportes", path: "/reports", icon: BarChart3, hideFor: ["Vendedor"] },
+    { name: "Usuarios", path: "/users", icon: Users, hideFor: ["Vendedor"] },
   ];
 
   const navItems = allNavItems.filter((item) => !item.hideFor?.includes(rol));

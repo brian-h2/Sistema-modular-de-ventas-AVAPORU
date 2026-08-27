@@ -10,3 +10,6 @@ export const createReport = async (expensesData: {date: Date  , categoria: strin
     return response.data;
 }
 
+export const listExpenses = listReports;
+
+

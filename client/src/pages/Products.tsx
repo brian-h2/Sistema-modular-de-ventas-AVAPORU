@@ -44,7 +44,7 @@ export default function Stock() {
   const [statusFilter, setStatusFilter] = useState("Todos los estados");
   const [showModal, setShowModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(5);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isNewCategory, setIsNewCategory] = useState(false);
 
@@ -566,6 +566,7 @@ export default function Stock() {
               totalItems={filteredProducts.length}
               pageSize={pageSize}
               onPageChange={setCurrentPage}
+              onPageSizeChange={setPageSize}
             />
           </div>
         )}
@@ -605,16 +606,16 @@ export default function Stock() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
-                      Código
+                      Código SKU
                     </label>
                     <input
                       type="text"
-                      maxLength={5}
+                      maxLength={15}
                       minLength={1}
                       required
                       value={form.sku}
                       onChange={(e) =>
-                        setForm({ ...form, sku: e.target.value })
+                        setForm({ ...form, sku: e.target.value.slice(0, 15) })
                       }
                       className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-slate-50/50 dark:bg-slate-800/50 transition-colors"
                     />
@@ -628,13 +629,13 @@ export default function Stock() {
                       <div>
                         <input
                           type="text"
-                          maxLength={15}
+                          maxLength={30}
                           minLength={1}
                           required
                           autoFocus
                           placeholder="Nombre de la nueva categoría"
                           value={form.categoria}
-                          onChange={(e) => setForm({ ...form, categoria: e.target.value })}
+                          onChange={(e) => setForm({ ...form, categoria: e.target.value.slice(0, 30) })}
                           className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-slate-50/50 dark:bg-slate-800/50 transition-colors"
                         />
                         <button
@@ -680,11 +681,11 @@ export default function Stock() {
                   </label>
                   <input
                     type="text"
-                    maxLength={15}
+                    maxLength={60}
                     minLength={1}
                     required
                     value={form.nombre}
-                    onChange={(e) => setForm({ ...form, nombre: e.target.value })}
+                    onChange={(e) => setForm({ ...form, nombre: e.target.value.slice(0, 60) })}
                     className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-slate-50/50 dark:bg-slate-800/50 transition-colors"
                   />
                 </div>
@@ -695,10 +696,10 @@ export default function Stock() {
                   </label>
                   <input
                     type="text"
-                    maxLength={15}
+                    maxLength={30}
                     minLength={1}
                     value={form.marca}
-                    onChange={(e) => setForm({ ...form, marca: e.target.value })}
+                    onChange={(e) => setForm({ ...form, marca: e.target.value.slice(0, 30) })}
                     className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-slate-50/50 dark:bg-slate-800/50 transition-colors"
                   />
                 </div>
@@ -711,11 +712,12 @@ export default function Stock() {
                     <input
                       type="text"
                       inputMode="numeric"
+                      maxLength={6}
                       required
                       value={form.stockDisponible}
                       onKeyDown={(e) => blockNonNumericKey(e)}
                       onChange={(e) => {
-                        const clean = sanitizeNumericString(e.target.value);
+                        const clean = sanitizeNumericString(e.target.value).slice(0, 6);
                         setForm({
                           ...form,
                           stockDisponible: clean === "" ? 0 : parseInt(clean, 10),
@@ -732,11 +734,12 @@ export default function Stock() {
                     <input
                       type="text"
                       inputMode="numeric"
+                      maxLength={6}
                       required
                       value={form.stockMinimo}
                       onKeyDown={(e) => blockNonNumericKey(e)}
                       onChange={(e) => {
-                        const clean = sanitizeNumericString(e.target.value);
+                        const clean = sanitizeNumericString(e.target.value).slice(0, 6);
                         setForm({
                           ...form,
                           stockMinimo: clean === "" ? 0 : parseInt(clean, 10),
@@ -748,16 +751,17 @@ export default function Stock() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
-                      Precio
+                      Precio ($)
                     </label>
                     <input
                       type="text"
                       inputMode="decimal"
+                      maxLength={10}
                       required
                       value={form.precio}
                       onKeyDown={(e) => blockNonNumericKey(e, true)}
                       onChange={(e) => {
-                        const clean = sanitizeNumericString(e.target.value, true);
+                        const clean = sanitizeNumericString(e.target.value, true).slice(0, 10);
                         setForm({
                           ...form,
                           precio: clean === "" || clean === "." ? 0 : parseFloat(clean),

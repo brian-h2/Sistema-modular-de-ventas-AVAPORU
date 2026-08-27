@@ -1,19 +1,25 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { listProducts } from "../services/productsService";
 import ProductStockList from "./Products/ListProducts";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, LayoutDashboard, PlusCircle, List as ListIcon, Package } from "lucide-react";
+import { ShoppingCart, LayoutDashboard, PlusCircle, List as ListIcon, Package, Sparkles } from "lucide-react";
 import SalesCharts from "../components/ui/SalesSummary/SalesCharts";
 import { useSales } from "../features/sales/hooks/useSales";
 import SalesForm from "../features/sales/components/SalesForm";
 import SalesList from "../features/sales/components/SalesList";
+import Predictions from "./Predictions";
 
 export default function Sales() {
+  const [searchParams] = useSearchParams();
+  const initialTab = (searchParams.get("tab") as any) || "overview";
   const { sales, fetchSales, handleUpdateStatus, handleCreateSale } = useSales();
   const [products, setProducts] = useState<any[]>([]);
   const [refreshProducts, setRefreshProducts] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'new_sale' | 'history' | 'inventory'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'new_sale' | 'history' | 'inventory' | 'predictions'>(
+    ["overview", "new_sale", "history", "inventory", "predictions"].includes(initialTab) ? initialTab : "overview"
+  );
 
   useEffect(() => {
     fetchSales();
@@ -96,6 +102,13 @@ export default function Sales() {
           <Package className="w-4 h-4" />
           Consulta de Stock
         </button>
+        <button
+          onClick={() => setActiveTab('predictions')}
+          className={`flex items-center gap-2 px-5 py-3 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${activeTab === 'predictions' ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 hover:dark:text-slate-300 hover:bg-slate-50 hover:dark:bg-slate-950'}`}
+        >
+          <Sparkles className="w-4 h-4 text-indigo-500" />
+          Predicciones & Tendencias
+        </button>
       </div>
 
       <AnimatePresence mode="wait">
@@ -109,33 +122,6 @@ export default function Sales() {
             exit="exit"
             className="flex flex-col gap-6"
           >
-            {/* Resumen */}
-            {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <motion.div variants={itemVariants} className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-between transition-all hover:shadow-md">
-                <div>
-                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Ventas del Día</p>
-                  <p className="text-3xl font-bold text-slate-800 dark:text-slate-100">
-                    {sales.filter(s => new Date(s.fecha).toDateString() === new Date().toDateString()).length}
-                  </p>
-                </div>
-                <div className="bg-emerald-100 dark:bg-emerald-900/40 p-3 rounded-xl text-emerald-600 dark:text-emerald-400">
-                  <ClockIcon className="h-7 w-7" />
-                </div>
-              </motion.div>
-
-              <motion.div variants={itemVariants} className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-between transition-all hover:shadow-md">
-                <div>
-                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Clientes Únicos (Mes)</p>
-                  <p className="text-3xl font-bold text-slate-800 dark:text-slate-100">
-                    {new Set(sales.map(s => s.cliente)).size}
-                  </p>
-                </div>
-                <div className="bg-blue-100 dark:bg-blue-900/40 p-3 rounded-xl text-blue-600 dark:text-blue-400">
-                  <UserIcon className="h-7 w-7" />
-                </div>
-              </motion.div>
-            </div> */}
-
             {/* Gráficos */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <SalesCharts sales={sales as any} />
@@ -161,16 +147,9 @@ export default function Sales() {
 
         {/* TAB: HISTORY */}
         {activeTab === 'history' && (
-          <motion.div
-            key="history"
-            variants={tabVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="grid grid-cols-1 gap-6"
-          >
+          <div className="grid grid-cols-1 gap-6">
             <SalesList sales={sales} onUpdateStatus={handleUpdateStatus} />
-          </motion.div>
+          </div>
         )}
 
         {/* TAB: INVENTORY */}
@@ -184,6 +163,20 @@ export default function Sales() {
             className="grid grid-cols-1 gap-6"
           >
             <ProductStockList refresh={refreshProducts} />
+          </motion.div>
+        )}
+
+        {/* TAB: PREDICTIONS */}
+        {activeTab === 'predictions' && (
+          <motion.div
+            key="predictions"
+            variants={tabVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="flex flex-col gap-6"
+          >
+            <Predictions sales={sales} products={products} isEmbedded={true} />
           </motion.div>
         )}
       </AnimatePresence>

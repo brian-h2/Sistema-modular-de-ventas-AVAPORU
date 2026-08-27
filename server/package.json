@@ -9,6 +9,7 @@
   "debug": true,
   "scripts": {
     "dev": "nodemon index.js",
+    "seed": "node scripts/seedTestData.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {

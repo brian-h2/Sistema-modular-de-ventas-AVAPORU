@@ -13,6 +13,7 @@ import { listProducts } from '../services/productsService';
 import SalesCategory from '../components/ui/SalesSummary/SalesCategory';
 import { listReports } from '../services/reportService';
 import { ExpensesSummaryCard } from '../components/ui/ExpensesSummary/ExpensesSummaryCard';
+import SalesPredictionCard from '../components/ui/Predictions/SalesPredictionCard';
 import { useTheme } from '../context/ThemeContext';
 
 const MONTH_NAMES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
@@ -220,6 +221,9 @@ export default function Dashboard() {
                     <SalesCategory sales={sales} />
                     <ProductsStockList products={products} />
                 </div>
+
+                {/* MODELO PREDICTIVO Y TENDENCIA POR TEMPORADA */}
+                <SalesPredictionCard sales={sales} products={products} />
             </motion.div>
         </div>
     )

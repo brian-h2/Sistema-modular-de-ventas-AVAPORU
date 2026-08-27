@@ -27,7 +27,7 @@ export default function UserManagement() {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(5);
 
 
   interface SystemUsers {
@@ -171,8 +171,10 @@ export default function UserManagement() {
                   <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Usuario *</label>
                   <input
                     type="text"
+                    required
+                    maxLength={25}
                     value={formData.username}
-                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, username: e.target.value.slice(0, 25) })}
                     className="w-full border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 bg-slate-50/50 dark:bg-slate-800/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-colors"
                     placeholder="Usuario"
                   />
@@ -183,8 +185,10 @@ export default function UserManagement() {
                   <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Email *</label>
                   <input
                     type="email"
+                    required
+                    maxLength={50}
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value.slice(0, 50) })}
                     className="w-full border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 bg-slate-50/50 dark:bg-slate-800/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-colors"
                     placeholder="email@empresa.com"
                   />
@@ -197,8 +201,9 @@ export default function UserManagement() {
                   </label>
                   <input
                     type="password"
+                    maxLength={30}
                     value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value.slice(0, 30) })}
                     className="w-full border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 bg-slate-50/50 dark:bg-slate-800/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-colors"
                     placeholder="•••••••"
                   />
@@ -209,8 +214,9 @@ export default function UserManagement() {
                   <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Confirmar Contraseña *</label>
                   <input
                     type="password"
+                    maxLength={30}
                     value={formData.confirmPassword}
-                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value.slice(0, 30) })}
                     className="w-full border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 bg-slate-50/50 dark:bg-slate-800/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-colors"
                     placeholder="•••••••"
                   />
@@ -471,6 +477,7 @@ export default function UserManagement() {
                 totalItems={filteredUsers.length}
                 pageSize={pageSize}
                 onPageChange={setCurrentPage}
+                onPageSizeChange={setPageSize}
               />
             )}
 

@@ -12,6 +12,7 @@ import Stock from "../pages/Products";
 import Users from "../pages/Users";
 import Expenses from "../pages/Expenses";
 import { ReportsModule } from "../pages/Reports";
+import Predictions from "../pages/Predictions";
 
 function MainLayout() {
   return (
@@ -41,6 +42,7 @@ export default function AppRoutes() {
           <Route path="/sales" element={<Sales />} />
           <Route path="/stock" element={<Stock />} />
           <Route path="/expenses" element={<Expenses />} />
+          <Route path="/predictions" element={<Predictions />} />
 
           <Route element={<RoleRoute allowedRoles={["Gerente", "Encargado"]} />}>
             <Route path="/users" element={<Users />} />
