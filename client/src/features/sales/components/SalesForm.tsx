@@ -1,17 +1,19 @@
 import { useMemo, useState } from "react";
 import { PlusCircleIcon, TrashIcon, MagnifyingGlassIcon, UserIcon } from "@heroicons/react/24/solid";
+import { Banknote, CreditCard, Landmark, QrCode, Wallet, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Swal from "sweetalert2";
 import { blockNonNumericKey, sanitizeNumericString } from "../../../utils/numericInput";
 
 interface SalesFormProps {
   products: any[];
-  onSubmit: (saleData: any) => Promise<boolean>;
+  onSubmit: (saleData: any) => Promise<any>;
 }
 
 export default function SalesForm({ products, onSubmit }: SalesFormProps) {
   const [form, setForm] = useState({
     cliente: "",
+    metodoPago: "EFECTIVO" as "EFECTIVO" | "MERCADO_PAGO" | "TRANSFERENCIA" | "TARJETA_DEBITO" | "TARJETA_CREDITO" | "OTRO",
     items: [{ sku: "", nombre: "", cantidad: 1, precioUnitario: 0 }],
   });
 
@@ -144,11 +146,16 @@ export default function SalesForm({ products, onSubmit }: SalesFormProps) {
       total,
       fecha: new Date().toISOString(),
       cliente: clienteTrimmed,
+      metodoPago: form.metodoPago,
     };
 
     const success = await onSubmit(saleData);
     if (success) {
-      setForm({ cliente: "", items: [{ sku: "", nombre: "", cantidad: 1, precioUnitario: 0 }] });
+      setForm({
+        cliente: "",
+        metodoPago: "EFECTIVO",
+        items: [{ sku: "", nombre: "", cantidad: 1, precioUnitario: 0 }],
+      });
       setProductQuery([""]);
     }
   };
@@ -359,6 +366,61 @@ export default function SalesForm({ products, onSubmit }: SalesFormProps) {
               <PlusCircleIcon className="w-4 h-4" />
               <span>Agregar Producto</span>
             </button>
+          </div>
+
+          {/* Sección Método de Pago */}
+          <div className="bg-slate-50/70 dark:bg-slate-800/40 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
+                Método de Pago
+              </label>
+              <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500">
+                Selecciona cómo abonará el cliente
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2.5">
+              {[
+                { id: "EFECTIVO", label: "Efectivo", icon: Banknote, color: "text-emerald-600 dark:text-emerald-400", activeBg: "border-emerald-500 bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 ring-2 ring-emerald-500/20" },
+                { id: "MERCADO_PAGO", label: "Mercado Pago", icon: QrCode, color: "text-sky-600 dark:text-sky-400", activeBg: "border-sky-500 bg-sky-50/80 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 ring-2 ring-sky-500/20" },
+                { id: "TRANSFERENCIA", label: "Transferencia", icon: Landmark, color: "text-purple-600 dark:text-purple-400", activeBg: "border-purple-500 bg-purple-50/80 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 ring-2 ring-purple-500/20" },
+                { id: "TARJETA_DEBITO", label: "T. Débito", icon: CreditCard, color: "text-indigo-600 dark:text-indigo-400", activeBg: "border-indigo-500 bg-indigo-50/80 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 ring-2 ring-indigo-500/20" },
+                { id: "TARJETA_CREDITO", label: "T. Crédito", icon: CreditCard, color: "text-blue-600 dark:text-blue-400", activeBg: "border-blue-500 bg-blue-50/80 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 ring-2 ring-blue-500/20" },
+                { id: "OTRO", label: "Otro", icon: Wallet, color: "text-slate-600 dark:text-slate-400", activeBg: "border-slate-500 bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-100 ring-2 ring-slate-500/20" },
+              ].map((m) => {
+                const Icon = m.icon;
+                const isSelected = form.metodoPago === m.id;
+                return (
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => setForm({ ...form, metodoPago: m.id as any })}
+                    className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all cursor-pointer ${
+                      isSelected
+                        ? m.activeBg + " font-bold shadow-sm"
+                        : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300 hover:dark:border-slate-600 font-medium"
+                    }`}
+                  >
+                    <Icon className={`w-5 h-5 mb-1.5 ${isSelected ? "" : m.color}`} />
+                    <span className="text-xs leading-tight">{m.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Aviso explicativo según método */}
+            <div className="text-xs p-3 rounded-xl flex items-start gap-2.5 transition-all bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-700/70">
+              <Info className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
+              {form.metodoPago === "MERCADO_PAGO" ? (
+                <span className="text-sky-800 dark:text-sky-300 font-medium">
+                  <strong>Mercado Pago:</strong> La venta se registrará como <em>Pendiente</em> y podrás abrir inmediatamente el enlace de cobro de Checkout Pro o cobrarla más tarde desde el historial.
+                </span>
+              ) : (
+                <span className="text-slate-600 dark:text-slate-400 font-medium">
+                  <strong>Cobro Directo ({form.metodoPago}):</strong> La venta se registrará automáticamente como <strong className="text-emerald-600 dark:text-emerald-400 font-semibold">PAGADA</strong> y estará lista para emitir comprobante.
+                </span>
+              )}
+            </div>
           </div>
         </div>
 

@@ -6,9 +6,11 @@ import {
 } from "@heroicons/react/24/solid";
 import { Calendar, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Swal from "sweetalert2";
 
 import type { Sale } from "../types";
 import Pagination from "../../../components/ui/Pagination";
+import { payWithMercadoPago } from "../../../services/paymentsService";
 
 interface SalesListProps {
   sales: Sale[];
@@ -28,7 +30,7 @@ export default function SalesList({
 
   /*
    * ============================================================
-   * ESTILOS DE ESTADO
+   * ESTILOS DE ESTADO Y MÉTODO DE PAGO
    * ============================================================
    */
 
@@ -51,6 +53,54 @@ export default function SalesList({
       styles[estado] ||
       "bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300"
     );
+  };
+
+  const getPaymentMethodBadge = (metodo?: string) => {
+    switch (metodo) {
+      case "MERCADO_PAGO":
+        return {
+          label: "Mercado Pago",
+          className:
+            "bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-400 border-sky-200/80 dark:border-sky-800/80",
+          icon: "💳",
+        };
+      case "TRANSFERENCIA":
+        return {
+          label: "Transferencia",
+          className:
+            "bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-400 border-purple-200/80 dark:border-purple-800/80",
+          icon: "🏦",
+        };
+      case "TARJETA_DEBITO":
+        return {
+          label: "T. Débito",
+          className:
+            "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 border-indigo-200/80 dark:border-indigo-800/80",
+          icon: "💳",
+        };
+      case "TARJETA_CREDITO":
+        return {
+          label: "T. Crédito",
+          className:
+            "bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 border-blue-200/80 dark:border-blue-800/80",
+          icon: "💳",
+        };
+      case "OTRO":
+        return {
+          label: "Otro medio",
+          className:
+            "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700",
+          icon: "🔄",
+        };
+      case "EFECTIVO":
+      default:
+        return {
+          label: "Efectivo",
+          className:
+            "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border-emerald-200/80 dark:border-emerald-800/80",
+          icon: "💵",
+        };
+    }
   };
 
   /*
@@ -174,126 +224,27 @@ export default function SalesList({
    * Checkout Pro
    */
 
-  const pagarConMercadoPago =
-    async (saleId: string) => {
-      try {
-        const token =
-          localStorage.getItem("token");
+  const pagarConMercadoPago = async (saleId: string) => {
+    try {
+      Swal.fire({
+        title: "Iniciando Mercado Pago...",
+        text: "Generando preferencia de pago...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
 
-        if (!token) {
-          alert(
-            "No se encontró el token de sesión."
-          );
-          return;
-        }
-
-        const apiUrl =
-          import.meta.env.VITE_API_URL;
-
-        if (!apiUrl) {
-          throw new Error(
-            "VITE_API_URL no está configurado."
-          );
-        }
-
-        console.log(
-          "API URL:",
-          apiUrl
-        );
-
-        console.log(
-          "Sale ID:",
-          saleId
-        );
-
-        console.log(
-          "Token encontrado:",
-          !!token
-        );
-
-        const response =
-          await fetch(
-            `${apiUrl}/payments/preference/${saleId}`,
-            {
-              method: "POST",
-
-              headers: {
-                "Content-Type":
-                  "application/json",
-
-                Authorization:
-                  `Bearer ${token}`,
-              },
-            }
-          );
-
-        console.log(
-          "Status Mercado Pago:",
-          response.status
-        );
-
-        const text =
-          await response.text();
-
-        console.log(
-          "Respuesta backend:",
-          text
-        );
-
-        let data;
-
-        try {
-          data = JSON.parse(text);
-        } catch {
-          throw new Error(
-            "El backend devolvió una respuesta que no es JSON."
-          );
-        }
-
-        if (!response.ok) {
-          throw new Error(
-            data.message ||
-              data.error ||
-              "No se pudo iniciar el pago con Mercado Pago"
-          );
-        }
-
-        /*
-         * En ambiente de prueba:
-         * sandboxCheckoutUrl.
-         *
-         * Si no existe:
-         * checkoutUrl.
-         */
-        const checkoutUrl =
-          data.sandboxCheckoutUrl ||
-          data.checkoutUrl;
-
-        if (!checkoutUrl) {
-          throw new Error(
-            "Mercado Pago no devolvió una URL de checkout"
-          );
-        }
-
-        /*
-         * Redirección a Checkout Pro.
-         */
-        window.location.href =
-          checkoutUrl;
-
-      } catch (error) {
-        console.error(
-          "Error iniciando Mercado Pago:",
-          error
-        );
-
-        alert(
-          error instanceof Error
-            ? error.message
-            : "No se pudo iniciar Mercado Pago"
-        );
-      }
-    };
+      await payWithMercadoPago(saleId);
+    } catch (error) {
+      console.error("Error iniciando Mercado Pago:", error);
+      Swal.fire({
+        icon: "error",
+        title: "No se pudo iniciar el pago",
+        text: error instanceof Error ? error.message : "Error al conectar con Mercado Pago",
+      });
+    }
+  };
 
 /*
  * ============================================================
@@ -732,15 +683,29 @@ const descargarComprobante =
             >
 
               {/* CABECERA DE LA ORDEN */}
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-start sm:items-center">
 
                 <div>
 
-                  <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                    🔖 {sale.cliente}
-                  </p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                      🔖 {sale.cliente}
+                    </p>
 
-                  <p className="text-sm text-gray-400 dark:text-slate-500">
+                    {(() => {
+                      const pm = getPaymentMethodBadge(sale.pago?.metodo);
+                      return (
+                        <span
+                          className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-md border shadow-2xs ${pm.className}`}
+                        >
+                          <span>{pm.icon}</span>
+                          <span>{pm.label}</span>
+                        </span>
+                      );
+                    })()}
+                  </div>
+
+                  <p className="text-sm text-gray-400 dark:text-slate-500 mt-0.5">
                     Fecha:{" "}
                     {formatDateDDMMYYYY(
                       sale.fecha
@@ -758,8 +723,9 @@ const descargarComprobante =
                   <div className="flex space-x-2 mt-3 justify-end">
 
                     {/* CREADA → Mercado Pago */}
-                    {sale.estado ===
-                      "CREADA" && (
+                    {sale.estado === "CREADA" &&
+                      (sale.pago?.metodo === "MERCADO_PAGO" ||
+                        !sale.pago?.metodo) && (
 
                       <motion.button
                         onClick={() =>
@@ -767,7 +733,7 @@ const descargarComprobante =
                             sale._id
                           )
                         }
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-sky-500 hover:bg-sky-600 rounded-lg cursor-pointer transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-sky-500 hover:bg-sky-600 rounded-lg cursor-pointer transition-colors shadow-xs"
                         whileHover={{
                           scale: 1.05,
                         }}

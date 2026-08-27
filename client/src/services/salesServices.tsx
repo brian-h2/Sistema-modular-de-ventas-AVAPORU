@@ -5,10 +5,16 @@ export const listSales = async () => {
   return response.data;
 };
 
-export const createSale = async (saleData: { productos: Array<{ productId: string; quantity: number }>; total: number; fecha: string; cliente: string }) => {
-    const response = await API.post("/sales", saleData);
-    return response.data;
-}
+export const createSale = async (saleData: {
+  productos: Array<{ productId: string; quantity: number; precioUnitario?: number }>;
+  total: number;
+  fecha: string;
+  cliente: string;
+  metodoPago?: "EFECTIVO" | "MERCADO_PAGO" | "TRANSFERENCIA" | "TARJETA_DEBITO" | "TARJETA_CREDITO" | "OTRO";
+}) => {
+  const response = await API.post("/sales", saleData);
+  return response.data;
+};
 
 export const updateSaleStatus = async (saleId: string, newStatus: string) => {
   console.log("Updating sale:", saleId, "to status:", newStatus);

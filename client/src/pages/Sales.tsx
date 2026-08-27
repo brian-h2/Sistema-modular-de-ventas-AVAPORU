@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { listProducts } from "../services/productsService";
+import { payWithMercadoPago } from "../services/paymentsService";
+import Swal from "sweetalert2";
 import ProductStockList from "./Products/ListProducts";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingCart, LayoutDashboard, PlusCircle, List as ListIcon, Package, Sparkles } from "lucide-react";
@@ -36,12 +38,64 @@ export default function Sales() {
   };
 
   const handleSaleSubmit = async (saleData: any) => {
-    const success = await handleCreateSale(saleData);
-    if (success) {
+    const result = await handleCreateSale(saleData);
+    if (result.success && result.sale) {
       setRefreshProducts((prev) => !prev);
-      setActiveTab('history'); // Redirigir al historial tras venta exitosa
+
+      if (saleData.metodoPago === "MERCADO_PAGO") {
+        const confirmPay = await Swal.fire({
+          title: "¡Venta Registrada!",
+          text: `La orden para ${saleData.cliente} ($${saleData.total.toLocaleString("es-AR")}) fue creada con método Mercado Pago. ¿Deseas abrir el Checkout ahora?`,
+          icon: "success",
+          showCancelButton: true,
+          confirmButtonText: "💳 Pagar con Mercado Pago ahora",
+          cancelButtonText: "Pagar más tarde",
+          confirmButtonColor: "#0284c7",
+          cancelButtonColor: "#64748b",
+        });
+
+        if (confirmPay.isConfirmed) {
+          Swal.fire({
+            title: "Iniciando Mercado Pago...",
+            text: "Generando preferencia y redirigiendo...",
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading();
+            },
+          });
+          try {
+            await payWithMercadoPago(result.sale._id);
+          } catch (err: any) {
+            Swal.fire({
+              icon: "error",
+              title: "Error con Mercado Pago",
+              text: err.message || "No se pudo iniciar el checkout. Podrás pagarla desde el historial.",
+            });
+            setActiveTab("history");
+          }
+        } else {
+          setActiveTab("history");
+        }
+      } else {
+        const metodoNombres: Record<string, string> = {
+          EFECTIVO: "Efectivo",
+          TRANSFERENCIA: "Transferencia",
+          TARJETA_DEBITO: "Tarjeta de Débito",
+          TARJETA_CREDITO: "Tarjeta de Crédito",
+          OTRO: "Otro medio",
+        };
+        Swal.fire({
+          icon: "success",
+          title: "¡Venta Registrada y Pagada!",
+          text: `Cobrada exitosamente mediante ${metodoNombres[saleData.metodoPago] || "Efectivo"}.`,
+          timer: 1800,
+          showConfirmButton: false,
+        });
+        setActiveTab("history");
+      }
+      return true;
     }
-    return success;
+    return false;
   };
 
   const tabVariants = {
